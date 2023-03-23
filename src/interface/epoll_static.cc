@@ -9,9 +9,9 @@ EpollInstance::~EpollInstance() {
   LOG(INFO) << "Free Static Instance";
 }
 
-int EpollInstance::AddEvent(int socket_fd) {
+int EpollInstance::AddEvent(int socket_fd, void* spi) {
   struct epoll_event ev;
-  ev.data.ptr = (void*)sp;
+  ev.data.ptr = spi;
   ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
   std::lock_guard<std::mutex> lk(epoll_mutex_);
   if (epoll_ctl(ep_fd_, EPOLL_CTL_ADD, socket_fd, &ev) == -1) {

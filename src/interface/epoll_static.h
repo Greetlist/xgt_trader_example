@@ -12,7 +12,7 @@ public:
     return instance;
   }
   int ep_fd_;
-  int AddEvent(int);
+  int AddEvent(int, void*);
   int DeleteEvent(int);
   EpollInstance(const EpollInstance&) = delete;
   void operator=(const EpollInstance&) = delete;

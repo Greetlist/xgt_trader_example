@@ -1,5 +1,7 @@
 #include "interface/xgt_trader_api_impl.h"
 
+namespace XGT {
+
 void XGTTraderApiImpl::FreeTraderApi() {
 }
 
@@ -18,23 +20,23 @@ int XGTTraderApiImpl::InsertOrder(const XGTInsertOrderRequest& req) {
 int XGTTraderApiImpl::CancelOrder(const XGTCancelOrderRequest& req) {
 }
 
-int XGTTraderApiImpl::QryAccount(const XGTQryAccountRequest& req) {
+int XGTTraderApiImpl::QryAccount() {
 }
 
-int XGTTraderApiImpl::QryPosition(const XGTQryPositionRequest& req) {
+int XGTTraderApiImpl::QryPosition() {
 }
 
-int XGTTraderApiImpl::QryOrder(const XGTQryOrderRequest& req) {
+int XGTTraderApiImpl::QryOrder() {
 }
 
-int XGTTraderApiImpl::QryTrade(const XGTQryTradeRequest& req) {
+int XGTTraderApiImpl::QryTrade() {
 }
 
 XGTTraderApiImpl::XGTTraderApiImpl(const char* log_dir, XGTTraderSpi* trader_spi) {
-  client_fd_ = socket(AF_INET, SOCK_STREAM, 0);
-  SetNonBlocking(client_fd_);
+  client_socket_ = socket(AF_INET, SOCK_STREAM, 0);
+  SetNonBlocking(client_socket_);
   EpollInstance& epoll_instance = EpollInstance::GetInstance();
-  return epoll_instance.AddEvent(client_fd_);
+  epoll_instance.AddEvent(client_socket_, trader_spi);
 }
 
 int XGTTraderApiImpl::SetNonBlocking(int fd) {
@@ -49,6 +51,8 @@ int XGTTraderApiImpl::SetNonBlocking(int fd) {
 }
 
 XGTTraderApi* XGTTraderApi::CreateTraderApi(const char* log_dir, XGTTraderSpi* trader_spi) {
-  XGTTraderApi* api = new XGTTraderApiImpl(log_dir, trade_spi);
+  XGTTraderApi* api = new XGTTraderApiImpl(log_dir, trader_spi);
   return api;
 }
+
+}//namespace XGT
