@@ -30,9 +30,7 @@ private:
   XGTTraderApiImpl() = delete;
   XGTTraderApiImpl(const XGTTraderApiImpl&) = delete;
   int SetNonBlocking(int fd);
-  int CreateEpoll();
   int client_socket_;
-  int ep_fd_;
 };
 
 #endif

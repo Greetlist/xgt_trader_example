@@ -2,16 +2,25 @@
 #define __EPOLL_STATIC_H_
 
 #include <sys/epoll.h>
+#include <glog/logging.h>
+#include <mutex>
 
 class EpollInstance {
 public:
-  EpollInstance();
-  static EpollInstance* GetInstance();
+  static EpollInstance& GetInstance() {
+    static EpollInstance instance;
+    return instance;
+  }
   int ep_fd_;
-private:
+  int AddEvent(int);
+  int DeleteEvent(int);
   EpollInstance(const EpollInstance&) = delete;
+  void operator=(const EpollInstance&) = delete;
+protected:
+  EpollInstance();
+  ~EpollInstance();
+private:
+  std::mutex epoll_mutex_;
 };
-
-static EpollInstance* instance_ = new EpollInstance();
 
 #endif
