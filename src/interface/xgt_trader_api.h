@@ -8,7 +8,7 @@ namespace XGT {
 // CallBack Class
 class XGTTraderSpi {
 public:
-  XGTTraderSpi() = delete;
+  XGTTraderSpi() {}
   XGTTraderSpi(const XGTTraderSpi&) = delete;
   virtual ~XGTTraderSpi() {}
 
