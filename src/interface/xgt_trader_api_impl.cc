@@ -6,30 +6,39 @@ void XGTTraderApiImpl::FreeTraderApi() {
 }
 
 int XGTTraderApiImpl::Login(const XGTLoginRequest& req) {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::Logout(const XGTLogouRequest& req) {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::SubscribeTopic(const XGTSubscribeRequest& req) {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::InsertOrder(const XGTInsertOrderRequest& req) {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::CancelOrder(const XGTCancelOrderRequest& req) {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::QryAccount() {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::QryPosition() {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::QryOrder() {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 int XGTTraderApiImpl::QryTrade() {
+  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
 }
 
 XGTTraderApiImpl::XGTTraderApiImpl(const char* log_dir, XGTTraderSpi* trader_spi) {
