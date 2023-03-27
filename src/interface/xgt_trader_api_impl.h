@@ -2,7 +2,6 @@
 #define __XGT_TRADER_API_IMPL_H_
 
 #include <gflags/gflags.h>
-#include <glog/logging.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -12,6 +11,7 @@
 
 #include "interface/xgt_trader_api.h"
 #include "interface/epoll_static.h"
+#include "interface/logger.h"
 
 namespace XGT {
 

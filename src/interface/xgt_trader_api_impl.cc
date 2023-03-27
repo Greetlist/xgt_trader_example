@@ -6,39 +6,48 @@ void XGTTraderApiImpl::FreeTraderApi() {
 }
 
 int XGTTraderApiImpl::Login(const XGTLoginRequest& req) {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::Logout(const XGTLogouRequest& req) {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::SubscribeTopic(const XGTSubscribeRequest& req) {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::InsertOrder(const XGTInsertOrderRequest& req) {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::CancelOrder(const XGTCancelOrderRequest& req) {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::QryAccount() {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::QryPosition() {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::QryOrder() {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 int XGTTraderApiImpl::QryTrade() {
-  LOG(INFO) << "In Api Impl: " << __FUNCTION__;
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  return 0;
 }
 
 XGTTraderApiImpl::XGTTraderApiImpl(const char* log_dir, XGTTraderSpi* trader_spi) {

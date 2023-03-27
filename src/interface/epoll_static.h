@@ -2,8 +2,9 @@
 #define __EPOLL_STATIC_H_
 
 #include <sys/epoll.h>
-#include <glog/logging.h>
 #include <mutex>
+
+#include "interface/logger.h"
 
 class EpollInstance {
 public:

@@ -20,17 +20,14 @@ int TestTrader::Init() {
   strcpy(req.password, config_["password"].c_str());
   strcpy(req.op_station, config_["op_station"].c_str());
   int res = trade_api_->Login(req);
-  if (res < 0) {
-    return res;
-  }
-  return 0;
+  return res;
 }
 
 int TestTrader::SubscribeTopic() {
   XGT::XGTSubscribeRequest req;
   std::vector<XGT::SubscribeChannel> channel_list{XGT::Order, XGT::Trade};
   for (const auto& channel : channel_list) {
-    req.channel = XGT::Order;
+    req.channel = channel;
     int res = trade_api_->SubscribeTopic(req);
     if (res != 0) {
       LOG_ERROR("subscribe topic error");

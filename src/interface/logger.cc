@@ -75,20 +75,20 @@ Logger::Logger() {
 }
 
 Logger::~Logger() {
+  stop_ = true;
+  log_writer.join();
   WriteLogToFile(); //clear all cached log
   for (int i = 1; i < LOGLEVEL::NUM; ++i) {
+    std::cout << i << std::endl;
     configs_[i]->file_stream_.flush();
     configs_[i]->file_stream_.close();
     delete configs_[i]->log_cache_;
     delete configs_[i];
   }
-  stop_ = true;
-  log_writer.join();
   std::cout << "Quit Log Writer" << std::endl;
 }
 
 void Logger::WriteLoop() {
-  std::cout << __FUNCTION__ << std::endl;
   while (!stop_) {
     WriteLogToFile();
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -98,12 +98,12 @@ void Logger::WriteLoop() {
 void Logger::WriteLogToFile() {
   for (int i = 1; i < LOGLEVEL::NUM; ++i) {
     configs_[i]->cache_mutex_.lock();
-    std::vector<std::string> cache_copy = std::move(*configs_[i]->log_cache_);
+    std::vector<std::string> cache_copy = std::move(*(configs_[i]->log_cache_));
+    std::cout << cache_copy.size() << ", " << configs_[i]->log_cache_->size() << std::endl;
     configs_[i]->cache_mutex_.unlock();
     int size = cache_copy.size();
     if (configs_[i]->current_log_line_ + size > Logger::max_log_line_) {
       int left = Logger::max_log_line_ - configs_[i]->current_log_line_;
-      std::cout << configs_[i]->current_log_line_ << ", " << size << ", " << Logger::max_log_line_ << std::endl;
       for (int j = 0; j < left; ++j) {
         configs_[i]->file_stream_ << cache_copy[j];
       }
@@ -115,6 +115,7 @@ void Logger::WriteLogToFile() {
       for (int j = left; j < size; ++j) {
         configs_[i]->file_stream_ << cache_copy[j];
       }
+      configs_[i]->current_log_line_ = size - left;
     } else {
       for (const std::string& s : cache_copy) {
         configs_[i]->file_stream_ << s;
@@ -130,7 +131,6 @@ std::fstream Logger::NewFstream(int level) {
   GenTimeString(time_str, 128, "%Y-%m-%d.%H:%M:%S");
   std::string file_name = Logger::log_basedir_ + "/" + Logger::binary_name_ + "." + std::string{time_str} + "." + LOGTEXT[level];
   std::fstream file_stream = std::fstream(file_name, std::ios_base::app | std::ios_base::in | std::ios_base::out);
-  std::cout << file_name << ", " << file_stream.is_open() << std::endl;
   return file_stream;
 }
 
