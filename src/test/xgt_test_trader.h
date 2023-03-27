@@ -2,8 +2,7 @@
 #define __XGT_TEST_TRADER_H_
 
 #include "interface/xgt_trader_api.h"
-
-#include <glog/logging.h>
+#include "interface/logger.h"
 
 #include <thread>
 #include <unordered_map>

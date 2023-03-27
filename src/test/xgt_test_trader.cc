@@ -33,7 +33,7 @@ int TestTrader::SubscribeTopic() {
     req.channel = XGT::Order;
     int res = trade_api_->SubscribeTopic(req);
     if (res != 0) {
-      LOG(ERROR) << "subscribe topic error";
+      LOG_ERROR("subscribe topic error");
       return -1;
     }
   }
@@ -41,19 +41,19 @@ int TestTrader::SubscribeTopic() {
 }
 
 int TestTrader::InsertOrder() {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
   return 0;
 }
 
 int TestTrader::CancelOrder() {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
   return 0;
 }
 
 int TestTrader::QueryAccount() {
   int res = trade_api_->QryAccount();
   if (res != 0) {
-    LOG(ERROR) << "query account error";
+    LOG_ERROR("query account error");
   }
   return 0;
 }
@@ -61,7 +61,7 @@ int TestTrader::QueryAccount() {
 int TestTrader::QueryPosition() {
   int res = trade_api_->QryPosition();
   if (res != 0) {
-    LOG(ERROR) << "query position error";
+    LOG_ERROR("query position error");
   }
   return 0;
 }
@@ -69,7 +69,7 @@ int TestTrader::QueryPosition() {
 int TestTrader::QueryOrder() {
   int res = trade_api_->QryOrder();
   if (res != 0) {
-    LOG(ERROR) << "query order error";
+    LOG_ERROR("query order error");
   }
   return 0;
 }
@@ -77,51 +77,51 @@ int TestTrader::QueryOrder() {
 int TestTrader::QueryTrade() {
   int res = trade_api_->QryTrade();
   if (res != 0) {
-    LOG(ERROR) << "query trade error";
+    LOG_ERROR("query trade error");
   }
   return 0;
 }
 
 void TestTrader::OnLogin(XGT::XGTLoginResponse* res) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnSubscribeTopic(XGT::XGTSubscribeTopicResponse* res) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspReturnOrder(XGT::XGTReturnOrder* res) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspReturnTrade(XGT::XGTReturnTrade* res) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspReturnAction(XGT::XGTReturnAction* res) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspQryAccount(XGT::XGTAccountInfo* res) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspQryPosition(XGT::XGTPositionInfo* position) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspQryOrder(XGT::XGTOrderInfo* order) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnRspQryTrade(XGT::XGTTradeInfo* trade) {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnConnect() {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }
 
 void TestTrader::OnDisConnect() {
-  LOG(INFO) << __FUNCTION__;
+  LOG_INFO("%s", __FUNCTION__);
 }

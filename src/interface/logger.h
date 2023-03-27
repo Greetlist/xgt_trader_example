@@ -14,6 +14,7 @@
 #include <thread>
 #include <fstream>
 #include <chrono>
+#include <iostream>
 
 namespace XGT {
 
@@ -55,15 +56,12 @@ static std::vector<std::string> LOGTEXT {
 
 static std::vector<std::string> LOGCOLOR{RESET, MAGENTA, BLUE, YELLOW, RED, RED, GREEN};
 
-//template <LOGLEVEL L, char* FILE=__FILE__, int LINE=__LINE__>
-template <LOGLEVEL L, int LINE=__LINE__>
-static void XLOG(const char* fmt, ...);
-
 int GenTimeString(char* buf, size_t len, const char* format_template);
 
 class Logger {
 public:
-  static void Init(const std::string& binary_name, const std::string& base_dir="./log", const int max_log_line=100000);
+  static void Init(const std::string& binary_name, bool log_to_std=false, const std::string& base_dir="./log", const int max_log_line=100000);
+  static void LOG(LOGLEVEL L, char* FILE, int LINE, const char* fmt, ...);
   Logger();
   ~Logger();
   Logger(const Logger&) = delete;
@@ -72,6 +70,7 @@ private:
     static Logger LogInstance;
     return LogInstance;
   }
+  void StartWriterThread();
   class InnerFileConfig {
   public:
     int current_log_line_;
@@ -80,6 +79,7 @@ private:
     std::mutex cache_mutex_;
   };
   static std::string log_basedir_;
+  static bool log_to_std_;
   static std::string binary_name_;
   static int max_log_line_;
   std::fstream NewFstream(int level);
@@ -89,12 +89,12 @@ private:
   std::thread log_writer;
 };
 
-//#define LOG_DEBUG(fmt, ...) LOG(DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-//#define LOG_INFO(fmt, ...) LOG(INFO, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-//#define LOG_WARN(fmt, ...) LOG(WARN, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-//#define LOG_ERROR(fmt, ...) LOG(ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-//#define LOG_FATAL(fmt, ...) LOG(FATAL, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-//#define LOG_SUCCESS(fmt, ...) LOG(SUCCESS, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) XGT::Logger::LOG(XGT::DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) XGT::Logger::LOG(XGT::INFO, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...) XGT::Logger::LOG(XGT::WARN, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) XGT::Logger::LOG(XGT::ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_FATAL(fmt, ...) XGT::Logger::LOG(XGT::FATAL, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_SUCCESS(fmt, ...) XGT::Logger::LOG(XGT::SUCCESS, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
 } //namespace XGT
 

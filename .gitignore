@@ -1,6 +1,7 @@
 # Xmake cache
 .xmake/
 build/
+log/
 *.swp
 
 # MacOS Cache
