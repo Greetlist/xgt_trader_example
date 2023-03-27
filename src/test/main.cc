@@ -31,5 +31,6 @@ int main(int argc, char** argv) {
   trader->QueryPosition();
   trader->QueryOrder();
   trader->QueryTrade();
+  delete trader;
   return 0;
 }

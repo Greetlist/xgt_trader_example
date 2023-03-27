@@ -3,6 +3,7 @@
 namespace XGT {
 
 void XGTTraderApiImpl::FreeTraderApi() {
+  delete this;
 }
 
 int XGTTraderApiImpl::Login(const XGTLoginRequest& req) {
