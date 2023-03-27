@@ -85,6 +85,7 @@ private:
   static int max_log_line_;
   std::fstream NewFstream(int level);
   void WriteLogToFile();
+  void WriteLoop();
   InnerFileConfig* NewInnerConfigs(int level);
   std::unordered_map<int, InnerFileConfig*> configs_;
   std::thread log_writer;

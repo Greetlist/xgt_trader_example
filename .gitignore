@@ -3,6 +3,7 @@
 build/
 log/
 *.swp
+core*
 
 # MacOS Cache
 .DS_Store

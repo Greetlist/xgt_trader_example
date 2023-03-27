@@ -42,8 +42,7 @@ int main(int argc, char** argv) {
   std::string item;
   while (getline(ss, item, '/')) {
   }
-  std::cout << item << std::endl;
-  XGT::Logger::Init(item, true, "./log", 500);
+  XGT::Logger::Init(item, false, "./log", 500);
   std::vector<std::thread> thread_vec;
   for (int i = 0; i < 3; ++i) {
     thread_vec.push_back(std::thread(test_func));
