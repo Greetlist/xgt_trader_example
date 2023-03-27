@@ -15,6 +15,7 @@
 #include <fstream>
 #include <chrono>
 #include <iostream>
+#include <atomic>
 
 namespace XGT {
 
@@ -87,6 +88,7 @@ private:
   InnerFileConfig* NewInnerConfigs(int level);
   std::unordered_map<int, InnerFileConfig*> configs_;
   std::thread log_writer;
+  std::atomic<bool> stop_{false};
 };
 
 #define LOG_DEBUG(fmt, ...) XGT::Logger::LOG(XGT::DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)

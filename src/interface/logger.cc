@@ -37,17 +37,17 @@ void Logger::LOG(LOGLEVEL L, char* FILE, int LINE, const char* fmt, ...) {
   va_end(v_list);
 
   char time_str[128];
-  int time_len = GenTimeString(time_str, 128, "%Y-%m-%d %H:%M:%S");
+  GenTimeString(time_str, 128, "%Y-%m-%d %H:%M:%S");
 
   int big_enough_len = fmt_str_len + 256;
   if (big_enough_len > 65535) {
     big_enough_len = 65535;
   }
   char final_str[big_enough_len];
-  int total_len = sprintf(final_str, "%s[%s][%s][%s:%d] %s%s", LOGCOLOR[L].c_str(), LOGTEXT[L].c_str(), time_str, __FILE__, LINE, fmt_str, LOGCOLOR[0].c_str());
+  sprintf(final_str, "%s[%s][%s][%s:%d] %s%s\n", LOGCOLOR[L].c_str(), LOGTEXT[L].c_str(), time_str, FILE, LINE, fmt_str, LOGCOLOR[0].c_str());
   std::string res(final_str);
   if (Logger::log_to_std_) {
-    std::cout << res << std::endl;
+    std::cout << res;
   }
   Logger& instance = Logger::GetInstance();
   instance.configs_[L]->cache_mutex_.lock();
@@ -76,13 +76,17 @@ Logger::Logger() {
 
 Logger::~Logger() {
   for (int i = 1; i < LOGLEVEL::NUM; ++i) {
+    delete configs_[i]->log_cache_;
     delete configs_[i];
   }
+  stop_ = true;
+  log_writer.join();
+  std::cout << "Quit Log Writer" << std::endl;
 }
 
 void Logger::WriteLogToFile() {
   std::cout << __FUNCTION__ << std::endl;
-  while (1) {
+  while (!stop_) {
     for (int i = 1; i < LOGLEVEL::NUM; ++i) {
       configs_[i]->cache_mutex_.lock();
       std::vector<std::string> cache_copy = std::move(*configs_[i]->log_cache_);
@@ -90,8 +94,9 @@ void Logger::WriteLogToFile() {
       int size = cache_copy.size();
       if (configs_[i]->current_log_line_ + size > Logger::max_log_line_) {
         int left = Logger::max_log_line_ - configs_[i]->current_log_line_;
+        std::cout << configs_[i]->current_log_line_ << ", " << size << ", " << Logger::max_log_line_ << std::endl;
         for (int i = 0; i < left; ++i) {
-          configs_[i]->file_stream_ << cache_copy[i] << "\n";
+          configs_[i]->file_stream_ << cache_copy[i];
         }
         configs_[i]->cache_mutex_.lock();
         configs_[i]->file_stream_.flush();
@@ -99,11 +104,11 @@ void Logger::WriteLogToFile() {
         configs_[i]->file_stream_ = NewFstream(i);
         configs_[i]->cache_mutex_.unlock();
         for (int i = left; i < size - left; ++i) {
-          configs_[i]->file_stream_ << cache_copy[i] << "\n";
+          configs_[i]->file_stream_ << cache_copy[i];
         }
       } else {
         for (const std::string& s : cache_copy) {
-          configs_[i]->file_stream_ << s << "\n";
+          configs_[i]->file_stream_ << s;
         }
         configs_[i]->current_log_line_ += size;
       }

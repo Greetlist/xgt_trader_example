@@ -10,23 +10,29 @@
 
 void test_func() {
   std::srand(std::time(nullptr));
-  for (int i = 0; i < 10000; ++i) {
+  for (int i = 0; i < 1000; ++i) {
     int random = std::rand() % 6 + 1;
     switch (random) {
     case 1:
       LOG_DEBUG("Test Debug: thread_id is: %d, Test function", std::this_thread::get_id());
+      break;
     case 2:
-      LOG_INFO("Test Info: %d", random);
+      LOG_INFO("Test Info: %d.", random);
+      break;
     case 3:
-      LOG_WARN("Test WARN: %d", random);
+      LOG_WARN("Test WARN: %d.", random);
+      break;
     case 4:
-      LOG_ERROR("Test Error: %d", random);
+      LOG_ERROR("Test Error: %d.", random);
+      break;
     case 5:
-      LOG_FATAL("Test Fatal: %d", random);
+      LOG_FATAL("Test Fatal: %d.", random);
+      break;
     case 6:
-      LOG_SUCCESS("Test Success: %d", random);
+      LOG_SUCCESS("Test Success: %d.", random);
+      break;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
@@ -37,11 +43,13 @@ int main(int argc, char** argv) {
   while (getline(ss, item, '/')) {
   }
   std::cout << item << std::endl;
-  XGT::Logger::Init(item, true);
+  XGT::Logger::Init(item, true, "./log", 500);
   std::vector<std::thread> thread_vec;
   for (int i = 0; i < 3; ++i) {
     thread_vec.push_back(std::thread(test_func));
   }
-  while (1) {}
+  for (int i = 0; i < 3; ++i) {
+    thread_vec[i].join();
+  }
   return 0;
 }
