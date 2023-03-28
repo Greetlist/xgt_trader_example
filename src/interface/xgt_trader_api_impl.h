@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "interface/xgt_trader_api.h"
+#include "interface/xgt_trader_spi.h"
 #include "interface/epoll_static.h"
 #include "interface/logger.h"
 #include "interface/xgt_client.h"
@@ -32,7 +33,6 @@ public:
   XGTTraderApiImpl(const XGTTraderApiImpl&) = delete;
 private:
   XGTClient* client_;
-  XGTTraderSpi* spi_;
 };
 
 }//namespace XGT

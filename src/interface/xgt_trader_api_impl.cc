@@ -3,12 +3,11 @@
 namespace XGT {
 
 void XGTTraderApiImpl::RegisterSpi(XGTTraderSpi* spi) {
-  spi_ = spi;
+  client_->SetSpi(spi);
 }
 
 void XGTTraderApiImpl::FreeTraderApi() {
   delete client_;
-  delete spi_;
   delete this;
 }
 

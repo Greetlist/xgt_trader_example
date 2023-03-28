@@ -39,7 +39,7 @@ void EpollInstance::EpollLoop() {
     struct epoll_event events[event_len_];
     int num = epoll_wait(ep_fd_, events, event_len_, wait_timeout_);
     for (int i = 0; i < num; ++i) {
-      XGTClient* client = static_cast<XGTClient*>(events[i].data.ptr);
+      XGT::XGTClient* client = static_cast<XGT::XGTClient*>(events[i].data.ptr);
       client->Read();
     }
   }

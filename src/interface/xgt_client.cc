@@ -1,5 +1,7 @@
 #include "interface/xgt_client.h"
 
+namespace XGT {
+
 XGTClient::XGTClient(const std::string& server, const int& port) : server_addr_(server), port_(port) {
   input_buf_ = new char[buf_size_];
   output_buf_ = new char[buf_size_];
@@ -31,7 +33,17 @@ int XGTClient::Read() {
   n_read = readv(client_fd_, read_vec, block_num);
 
   int packet_type = packet_info[1];
+  DispatchPacket(packet_type, read_buf, total_packet_size);
   return n_read;
+}
+
+void XGTClient::DispatchPacket(int packet_type, char* data, int total_packet_size) {
+  switch (packet_type) {
+  case 1:
+    break;
+  default:
+    break;
+  }
 }
 
 void XGTClient::Connect() {
@@ -68,3 +80,8 @@ int XGTClient::GetSocket() {
   return client_fd_;
 }
 
+void XGTClient::SetSpi(XGTTraderSpi* spi) {
+  spi_ = spi;
+}
+
+} //namespace XGT

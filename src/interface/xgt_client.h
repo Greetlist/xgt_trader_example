@@ -12,6 +12,9 @@
 #include <sys/uio.h>
 
 #include "interface/logger.h"
+#include "interface/xgt_trader_spi.h"
+
+namespace XGT {
 
 class XGTClient {
 public:
@@ -24,14 +27,20 @@ public:
   void Connect();
   int DisConnect();
   int GetSocket();
+  void SetSpi(XGTTraderSpi* spi);
 private:
   int SetNonBlocking(int fd);
+  void DispatchPacket(int packet_type, char* data, int total_packet_size);
+  void FreeData(char* data);
   std::string server_addr_;
   static constexpr int buf_size_ = 65536;
   char* input_buf_;
   char* output_buf_;
+  XGTTraderSpi* spi_;
   int port_;
   int client_fd_;
 };
+
+}// namespace XGT
 
 #endif

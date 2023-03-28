@@ -2,6 +2,7 @@
 #define __XGT_TEST_TRADER_H_
 
 #include "interface/xgt_trader_api.h"
+#include "interface/xgt_trader_spi.h"
 #include "interface/logger.h"
 
 #include <thread>
