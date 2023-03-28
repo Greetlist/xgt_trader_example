@@ -17,7 +17,7 @@ int GenTimeString(char* buf, size_t len, const char* format_template) {
   return sprintf(buf, "%s.%ld", buf, t_val.tv_usec);
 }
 
-void Logger::LOG(LOGLEVEL L, char* FILE, int LINE, const char* fmt, ...) {
+void Logger::LOG(LOGLEVEL L, const char* FILE, int LINE, const char* fmt, ...) {
   if (L < LOGLEVEL::DEBUG) {
     return;
   }

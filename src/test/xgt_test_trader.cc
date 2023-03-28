@@ -11,7 +11,7 @@ TestTrader::~TestTrader() {
 }
 
 int TestTrader::Init() {
-  trade_api_ = XGT::XGTTraderApi::CreateTraderApi(config_["log_dir"].c_str(), this);
+  trade_api_ = XGT::XGTTraderApi::CreateTraderApi(config_["log_dir"].c_str(), config_["server"], std::stoi(config_["port"]));
   if (trade_api_ == nullptr) {
     return -1;
   }

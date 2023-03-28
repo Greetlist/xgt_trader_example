@@ -27,7 +27,7 @@ public:
 
 class XGTTraderApi {
 public:
-  static XGTTraderApi* CreateTraderApi(const char* log_dir, XGTTraderSpi* trader_spi);
+  static XGTTraderApi* CreateTraderApi(const char* log_dir, const std::string& server, const int& port);
   virtual void FreeTraderApi() = 0;
   virtual int Login(const XGTLoginRequest&) = 0;
   virtual int Logout(const XGTLogouRequest&) = 0;

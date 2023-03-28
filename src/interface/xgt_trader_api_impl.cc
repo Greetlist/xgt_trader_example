@@ -2,7 +2,13 @@
 
 namespace XGT {
 
+void XGTTraderApiImpl::RegisterSpi(XGTTraderSpi* spi) {
+  spi_ = spi;
+}
+
 void XGTTraderApiImpl::FreeTraderApi() {
+  delete client_;
+  delete spi_;
   delete this;
 }
 
@@ -51,26 +57,15 @@ int XGTTraderApiImpl::QryTrade() {
   return 0;
 }
 
-XGTTraderApiImpl::XGTTraderApiImpl(const char* log_dir, XGTTraderSpi* trader_spi) {
-  client_socket_ = socket(AF_INET, SOCK_STREAM, 0);
-  SetNonBlocking(client_socket_);
+XGTTraderApiImpl::XGTTraderApiImpl(const char* log_dir, const std::string& server, const int& port) {
+  client_ = new XGTClient(server, port);
+  client_->Connect();
   EpollInstance& epoll_instance = EpollInstance::GetInstance();
-  epoll_instance.AddEvent(client_socket_, trader_spi);
+  epoll_instance.AddEvent(client_->GetSocket(), client_);
 }
 
-int XGTTraderApiImpl::SetNonBlocking(int fd) {
-  int flags = fcntl(fd, F_GETFL, 0);
-  flags |= O_NONBLOCK;
-  int status = fcntl(fd, F_SETFL, flags);
-  if (status < 0) {
-    perror("File Control Error");
-    exit(1);
-  }
-  return status;
-}
-
-XGTTraderApi* XGTTraderApi::CreateTraderApi(const char* log_dir, XGTTraderSpi* trader_spi) {
-  XGTTraderApi* api = new XGTTraderApiImpl(log_dir, trader_spi);
+XGTTraderApi* XGTTraderApi::CreateTraderApi(const char* log_dir, const std::string& server, const int& port) {
+  XGTTraderApi* api = new XGTTraderApiImpl(log_dir, server, port);
   return api;
 }
 

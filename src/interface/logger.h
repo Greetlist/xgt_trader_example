@@ -62,7 +62,7 @@ int GenTimeString(char* buf, size_t len, const char* format_template);
 class Logger {
 public:
   static void Init(const std::string& binary_name, bool log_to_std=false, const std::string& base_dir="./log", const int max_log_line=100000);
-  static void LOG(LOGLEVEL L, char* FILE, int LINE, const char* fmt, ...);
+  static void LOG(LOGLEVEL L, const char* FILE, int LINE, const char* fmt, ...);
   Logger();
   ~Logger();
   Logger(const Logger&) = delete;
