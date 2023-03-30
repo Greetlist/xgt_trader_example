@@ -1,16 +1,17 @@
 #ifndef __XGT_TRADER_STRUCT_H_
 #define __XGT_TRADER_STRUCT_H_
 
-#include <memory>
+#pragma pack(push, 1)
 
-#include "interface/xgt_trader_emu.h"
+#include <sys/types.h>
+#include "interface/xgt_trader_enum.h"
 
 namespace XGT {
 
 struct XGTLoginRequest {
   char account[32];
   char password[32];
-  char op_station[128];
+  char op_station[256];
 };
 
 struct XGTLoginResponse {
@@ -20,7 +21,7 @@ struct XGTLoginResponse {
   char msg[32];
 };
 
-struct XGTLogouRequest {
+struct XGTLogoutRequest {
   char account[32];
 };
 
@@ -35,8 +36,8 @@ struct XGTSubscribeTopicResponse {
 
 struct XGTInsertOrderRequest {
   double price;
-  char instrument_id[32];
-  char exchange_id[32];
+  char instrument_id[16];
+  char exchange_id[16];
   char fund_account[32];
   char account[32];
   int volume;
@@ -80,6 +81,12 @@ struct XGTReturnAction {
   OrderStatus order_status;
 };
 
+struct XGTQueryCommonRequest {
+  char fund_account[32];
+  char account[32];
+  RequestType request_type;
+};
+
 struct XGTAccountInfo {
   double total_assets;
   double enable_balance;
@@ -121,6 +128,8 @@ struct XGTQryPositionResponse {
   char exchange_id[32];
   int volume;
 };
+
+#pragma pack(pop)
 
 }//namespace XGT
 

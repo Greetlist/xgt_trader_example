@@ -2,7 +2,7 @@
 
 namespace XGT {
 
-XGTClient::XGTClient(const std::string& server, const int& port) : server_addr_(server), port_(port) {
+XGTClient::XGTClient(const char* server, const int& port) : server_addr_(server), port_(port) {
   input_buf_ = new char[buf_size_];
   output_buf_ = new char[buf_size_];
 }
@@ -10,10 +10,6 @@ XGTClient::XGTClient(const std::string& server, const int& port) : server_addr_(
 XGTClient::~XGTClient() {
   delete input_buf_;
   delete output_buf_;
-}
-
-int XGTClient::Write(char* data, int data_len) {
-  return 0;
 }
 
 int XGTClient::Read() {
@@ -39,11 +35,28 @@ int XGTClient::Read() {
 
 void XGTClient::DispatchPacket(int packet_type, char* data, int total_packet_size) {
   switch (packet_type) {
-  case 1:
+  case LoginResponse:
+    break;
+  case LogoutResponse:
+    break;
+  case SubscribeResponse:
+    break;
+  case ReturnOrder:
+    break;
+  case ReturnTrade:
+    break;
+  case QueryAccountResponse:
+    break;
+  case QueryPositionResponse:
+    break;
+  case QueryOrderResponse:
+    break;
+  case QueryTradeResponse:
     break;
   default:
     break;
   }
+  free(data);
 }
 
 void XGTClient::Connect() {
@@ -56,10 +69,10 @@ void XGTClient::Connect() {
   memset(&addr, 0, sizeof(struct sockaddr_in));
   addr.sin_family = AF_INET;
   inet_pton(AF_INET, server_addr_.c_str(), &addr.sin_addr);
-  addr.sin_port = htons(12345);
+  addr.sin_port = htons(port_);
   int connect_status = connect(client_fd_, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
   if (connect_status < 0) {
-      LOG_ERROR("Connect Error: %s", strerror(errno));
+      LOG_ERROR("Connect [ %s:%d ] Error: %s", server_addr_.c_str(), port_, strerror(errno));
       std::exit(1);
   }
   SetNonBlocking(client_fd_);
