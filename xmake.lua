@@ -8,6 +8,16 @@ target("xgt")
     add_cxflags("-g")
     add_packages("glog", "gflags")
 
+target("xgt_server")
+    set_kind("binary")
+    add_files("src/server/*.cc")
+    add_includedirs("fake-tcp/src")
+    add_cxflags("-g")
+    add_ldflags("-lpthread")
+
+    add_linkdirs("fake-tcp/lib")
+    add_links("epoll_server", "logger", "util")
+
 target("xgt_trader")
     set_kind("binary")
     add_files("src/test/*.cc")

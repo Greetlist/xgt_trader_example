@@ -11,7 +11,7 @@ TestTrader::~TestTrader() {
 }
 
 int TestTrader::Init() {
-  trade_api_ = XGT::XGTTraderApi::CreateTraderApi(config_["log_dir"].c_str(), config_["server"], std::stoi(config_["port"]));
+  trade_api_ = XGT::XGTTraderApi::CreateTraderApi(config_["log_dir"].c_str(), config_["server"].c_str(), std::stoi(config_["port"]));
   if (trade_api_ == nullptr) {
     return -1;
   }
@@ -48,7 +48,10 @@ int TestTrader::CancelOrder() {
 }
 
 int TestTrader::QueryAccount() {
-  int res = trade_api_->QryAccount();
+  XGT::XGTQueryCommonRequest req;
+  strcpy(req.account, config_["account"].c_str());
+  strcpy(req.fund_account, config_["fund_account"].c_str());
+  int res = trade_api_->QryAccount(req);
   if (res != 0) {
     LOG_ERROR("query account error");
   }
@@ -56,7 +59,10 @@ int TestTrader::QueryAccount() {
 }
 
 int TestTrader::QueryPosition() {
-  int res = trade_api_->QryPosition();
+  XGT::XGTQueryCommonRequest req;
+  strcpy(req.account, config_["account"].c_str());
+  strcpy(req.fund_account, config_["fund_account"].c_str());
+  int res = trade_api_->QryPosition(req);
   if (res != 0) {
     LOG_ERROR("query position error");
   }
@@ -64,7 +70,10 @@ int TestTrader::QueryPosition() {
 }
 
 int TestTrader::QueryOrder() {
-  int res = trade_api_->QryOrder();
+  XGT::XGTQueryCommonRequest req;
+  strcpy(req.account, config_["account"].c_str());
+  strcpy(req.fund_account, config_["fund_account"].c_str());
+  int res = trade_api_->QryOrder(req);
   if (res != 0) {
     LOG_ERROR("query order error");
   }
@@ -72,7 +81,10 @@ int TestTrader::QueryOrder() {
 }
 
 int TestTrader::QueryTrade() {
-  int res = trade_api_->QryTrade();
+  XGT::XGTQueryCommonRequest req;
+  strcpy(req.account, config_["account"].c_str());
+  strcpy(req.fund_account, config_["fund_account"].c_str());
+  int res = trade_api_->QryTrade(req);
   if (res != 0) {
     LOG_ERROR("query trade error");
   }

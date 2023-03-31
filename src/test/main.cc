@@ -8,6 +8,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <unordered_map>
+#include <string>
 
 int main(int argc, char** argv) {
   std::string binary_path{argv[0]};
@@ -16,7 +17,10 @@ int main(int argc, char** argv) {
   while (getline(ss, item, '/')) {
   }
   std::unordered_map<std::string, std::string> config {
+    {"server", "localhost"},
+    {"port", "10000"},
     {"account", "test"},
+    {"fund_account", "BH300214681"},
     {"password", "passwd"},
     {"op_station", "test_op_station"},
   };
