@@ -6,7 +6,7 @@
 #include <iostream>
 
 void test_func(char* data, int data_len) {
-  std::cout << data << std::endl;
+  std::cout << "recv len: " << data_len << "data: " << data << std::endl;
 }
 
 int main(int argc, char** argv) {
