@@ -15,7 +15,7 @@ EpollInstance::~EpollInstance() {
 int EpollInstance::AddEvent(int socket_fd, void* client) {
   struct epoll_event ev;
   ev.data.ptr = client;
-  ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
+  ev.events = EPOLLIN | EPOLLET;
   std::lock_guard<std::mutex> lk(epoll_mutex_);
   if (epoll_ctl(ep_fd_, EPOLL_CTL_ADD, socket_fd, &ev) == -1) {
     LOG_ERROR("Epoll Ctl Error");

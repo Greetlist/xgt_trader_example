@@ -1,13 +1,10 @@
 #include "epoll_server/server_factory.h"
 #include "epoll_server/global_def.h"
+#include "server/request_distributor.h"
 
 #include <unordered_map>
 #include <string>
 #include <iostream>
-
-void test_func(char* data, int data_len) {
-  std::cout << "recv len: " << data_len << "data: " << data << std::endl;
-}
 
 int main(int argc, char** argv) {
   std::unordered_map<std::string, std::string> config {
@@ -16,7 +13,7 @@ int main(int argc, char** argv) {
   };
   ftcp::EpollServerBase* server = ftcp::EpollServerFactory::GetServer(ftcp::ServerType::TCP, config["listen_addr"], std::stoi(config["listen_port"]));
   server->Init();
-  server->SetDataCallback(test_func);
+  server->SetDataCallback(XGT::DistributeRequest);
   server->Start();
   return 0;
 }

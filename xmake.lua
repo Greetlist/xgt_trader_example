@@ -11,7 +11,7 @@ target("xgt")
 target("xgt_server")
     set_kind("binary")
     add_files("src/server/*.cc")
-    add_includedirs("fake-tcp/src")
+    add_includedirs("fake-tcp/src", "src")
     add_cxflags("-g")
     add_ldflags("-lpthread")
 

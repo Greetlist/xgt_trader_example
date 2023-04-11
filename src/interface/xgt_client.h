@@ -13,6 +13,7 @@
 #include <type_traits>
 
 #include "interface/logger.h"
+#include "interface/util.h"
 #include "interface/xgt_trader_spi.h"
 
 namespace XGT {
@@ -30,9 +31,9 @@ public:
     int struct_size = sizeof(T);
     char buf[INT_SIZE * 2 + struct_size];
     int request_type = GetRequestType<T>(req);
-    int request_size = INT_SIZE * 2 + struct_size;
-    memcpy(buf, &request_type, INT_SIZE);
-    memcpy(buf+INT_SIZE, &request_size, INT_SIZE);
+    int request_size = INT_SIZE + struct_size;
+    memcpy(buf, &request_size, INT_SIZE);
+    memcpy(buf+INT_SIZE, &request_type, INT_SIZE);
     memcpy(buf+INT_SIZE*2, &req, struct_size);
     int res = write(client_fd_, buf, INT_SIZE * 2 + struct_size);
     if (res < 0) {
@@ -41,6 +42,8 @@ public:
     } else if (res == 0) {
       LOG_WARN("Connection is closed, Start Reconnect");
       Connect();
+    } else {
+      LOG_INFO("Write %d bytes to server.", res);
     }
     return 0;
   }
@@ -51,23 +54,6 @@ public:
   int GetSocket();
   void SetSpi(XGTTraderSpi* spi);
 private:
-  template <typename T>
-  int GetRequestType(const T& req) {
-    if (std::is_same<T, XGTLoginRequest>::value) {
-      return RequestType::LoginRequest;
-    } else if (std::is_same<T, XGTLogoutRequest>::value) {
-      return RequestType::LogoutRequest;
-    } else if (std::is_same<T, XGTSubscribeRequest>::value) {
-      return RequestType::SubscribeRequest;
-    } else if (std::is_same<T, XGTInsertOrderRequest>::value) {
-      return RequestType::InsertOrderRequest;
-    } else if (std::is_same<T, XGTCancelOrderRequest>::value) {
-      return RequestType::CancelOrderRequest;
-    } else if (std::is_same<T, XGTQueryCommonRequest>::value) {
-      return RequestType::QueryRequest;
-    }
-    return RequestType::UnknownRequest;
-  }
   int SetNonBlocking(int fd);
   void DispatchPacket(int packet_type, char* data, int total_packet_size);
   void FreeData(char* data);
