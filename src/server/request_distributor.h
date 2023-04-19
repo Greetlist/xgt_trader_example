@@ -14,7 +14,7 @@ namespace XGT {
 static constexpr int INT_SIZE = sizeof(int);
 static constexpr int RequestMaxBufferSize = 4096;
 
-int DistributeRequest(int);
+void DistributeRequest(int, char*);
 void DispatchRequest(int, int, char*);
 
 } //namespace XGT

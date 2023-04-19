@@ -79,7 +79,6 @@ Logger::~Logger() {
   log_writer.join();
   WriteLogToFile(); //clear all cached log
   for (int i = 1; i < LOGLEVEL::NUM; ++i) {
-    std::cout << i << std::endl;
     configs_[i]->file_stream_.flush();
     configs_[i]->file_stream_.close();
     delete configs_[i]->log_cache_;
@@ -99,7 +98,6 @@ void Logger::WriteLogToFile() {
   for (int i = 1; i < LOGLEVEL::NUM; ++i) {
     configs_[i]->cache_mutex_.lock();
     std::vector<std::string> cache_copy = std::move(*(configs_[i]->log_cache_));
-    std::cout << cache_copy.size() << ", " << configs_[i]->log_cache_->size() << std::endl;
     configs_[i]->cache_mutex_.unlock();
     int size = cache_copy.size();
     if (configs_[i]->current_log_line_ + size > Logger::max_log_line_) {

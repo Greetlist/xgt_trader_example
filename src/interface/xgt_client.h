@@ -18,7 +18,7 @@
 
 namespace XGT {
 
-static constexpr int INT_SIZE = sizeof(int);
+static constexpr uint32_t INT_SIZE = sizeof(int);
 
 class XGTClient {
 public:
@@ -28,12 +28,14 @@ public:
   ~XGTClient();
   template <typename T>
   int Write(const T& req) {
-    int struct_size = sizeof(T);
+    uint32_t struct_size = sizeof(T);
     char buf[INT_SIZE * 2 + struct_size];
     int request_type = GetRequestType<T>(req);
-    int request_size = INT_SIZE + struct_size;
-    memcpy(buf, &request_size, INT_SIZE);
-    memcpy(buf+INT_SIZE, &request_type, INT_SIZE);
+    uint32_t request_size = INT_SIZE + struct_size;
+    uint32_t req_size_no = htonl(request_size);
+    uint32_t req_type_no = htonl(request_type);
+    memcpy(buf, &req_size_no, INT_SIZE);
+    memcpy(buf+INT_SIZE, &req_type_no, INT_SIZE);
     memcpy(buf+INT_SIZE*2, &req, struct_size);
     int res = write(client_fd_, buf, INT_SIZE * 2 + struct_size);
     if (res < 0) {
@@ -44,6 +46,7 @@ public:
       Connect();
     } else {
       LOG_INFO("Write %d bytes to server.", res);
+      total_write_bytes_ += res;
     }
     return 0;
   }
@@ -57,13 +60,14 @@ private:
   int SetNonBlocking(int fd);
   void DispatchPacket(int packet_type, char* data, int total_packet_size);
   void FreeData(char* data);
+  uint64_t total_write_bytes_;
   std::string server_addr_;
-  static constexpr int buf_size_ = 65536;
   char* input_buf_;
   char* output_buf_;
   XGTTraderSpi* spi_;
   int port_;
   int client_fd_;
+  static constexpr int buf_size_ = 65536;
 };
 
 }// namespace XGT

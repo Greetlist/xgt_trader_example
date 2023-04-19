@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <unordered_map>
 #include <string>
+#include <thread>
 
 int main(int argc, char** argv) {
   std::string binary_path{argv[0]};
@@ -17,8 +18,8 @@ int main(int argc, char** argv) {
   while (getline(ss, item, '/')) {
   }
   std::unordered_map<std::string, std::string> config {
-    {"server", "localhost"},
-    {"port", "10000"},
+    {"server", "43.137.11.248"},
+    {"port", "8888"},
     {"account", "test"},
     {"fund_account", "BH300214681"},
     {"password", "passwd"},
@@ -28,13 +29,16 @@ int main(int argc, char** argv) {
   TestTrader* trader = new TestTrader(std::move(config));
   int res = trader->Init();
   LOG_INFO("res is: %d", res);
-  trader->SubscribeTopic();
-  trader->InsertOrder();
-  trader->CancelOrder();
-  trader->QueryAccount();
-  trader->QueryPosition();
-  trader->QueryOrder();
-  trader->QueryTrade();
+  for (int i = 0; i < 200; ++i) {
+    trader->SubscribeTopic();
+    trader->InsertOrder();
+    trader->CancelOrder();
+    trader->QueryAccount();
+    trader->QueryPosition();
+    trader->QueryOrder();
+    trader->QueryTrade();
+    //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
   delete trader;
   return 0;
 }
