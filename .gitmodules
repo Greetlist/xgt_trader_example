@@ -1,3 +1,0 @@
-[submodule "fake-tcp"]
-	path = fake-tcp
-	url = https://github.com/Greetlist/fake-tcp.git

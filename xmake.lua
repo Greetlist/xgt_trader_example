@@ -6,24 +6,26 @@ target("xgt")
     add_files("src/interface/*.cc")
     add_includedirs("src")
     add_cxflags("-g")
-    add_packages("glog", "gflags")
+
+target("logger")
+    set_kind("shared")
+    add_files("src/logger/*.cc")
+    add_includedirs("src")
+    add_cxflags("-g")
 
 target("xgt_server")
     set_kind("binary")
     add_files("src/server/*.cc")
-    add_includedirs("fake-tcp/src", "src")
     add_cxflags("-g")
     add_ldflags("-lpthread")
-
-    add_linkdirs("fake-tcp/lib")
-    add_links("epoll_server", "logger", "util")
+    add_deps("xgt", "logger")
 
 target("xgt_trader")
     set_kind("binary")
-    add_files("src/test/*.cc")
+    add_files("src/test_client/*.cc")
     add_includedirs("src")
     add_cxflags("-g")
-    add_deps("xgt")
+    add_deps("xgt", "logger")
     add_ldflags("-lpthread")
 
 --

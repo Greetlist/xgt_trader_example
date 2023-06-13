@@ -18,8 +18,8 @@ int main(int argc, char** argv) {
   while (getline(ss, item, '/')) {
   }
   std::unordered_map<std::string, std::string> config {
-    {"server", "43.137.11.248"},
-    {"port", "8888"},
+    {"server", "127.0.0.1"},
+    {"port", "10000"},
     {"account", "test"},
     {"fund_account", "BH300214681"},
     {"password", "passwd"},
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   TestTrader* trader = new TestTrader(std::move(config));
   int res = trader->Init();
   LOG_INFO("res is: %d", res);
-  for (int i = 0; i < 200; ++i) {
+  for (int i = 0; i < 2; ++i) {
     trader->SubscribeTopic();
     trader->InsertOrder();
     trader->CancelOrder();
