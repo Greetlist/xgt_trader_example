@@ -1,5 +1,5 @@
-#include "test/xgt_test_trader.h"
-#include "interface/logger.h"
+#include "test_client/xgt_test_trader.h"
+#include "logger/logger.h"
 #include "unordered_map"
 #include <thread>
 #include <chrono>

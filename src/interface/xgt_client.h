@@ -12,7 +12,7 @@
 #include <sys/uio.h>
 #include <type_traits>
 
-#include "interface/logger.h"
+#include "logger/logger.h"
 #include "interface/util.h"
 #include "interface/xgt_trader_spi.h"
 

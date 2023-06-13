@@ -6,7 +6,7 @@
 #include <thread>
 #include <atomic>
 
-#include "interface/logger.h"
+#include "logger/logger.h"
 #include "interface/xgt_client.h"
 
 class EpollInstance {

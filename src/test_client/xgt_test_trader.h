@@ -3,7 +3,7 @@
 
 #include "interface/xgt_trader_api.h"
 #include "interface/xgt_trader_spi.h"
-#include "interface/logger.h"
+#include "logger/logger.h"
 
 #include <thread>
 #include <unordered_map>

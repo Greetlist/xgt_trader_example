@@ -1,4 +1,4 @@
-#include "interface/logger.h"
+#include "logger/logger.h"
 
 namespace XGT {
 

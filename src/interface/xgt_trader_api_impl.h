@@ -10,7 +10,7 @@
 #include "interface/xgt_trader_api.h"
 #include "interface/xgt_trader_spi.h"
 #include "interface/epoll_static.h"
-#include "interface/logger.h"
+#include "logger/logger.h"
 #include "interface/xgt_client.h"
 
 namespace XGT {
