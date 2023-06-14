@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     {"password", "passwd"},
     {"op_station", "test_op_station"},
   };
-  XGT::Logger::Init(item, true, "./log", 500);
+  Logger::Init(item, true, "./log", 500);
   TestTrader* trader = new TestTrader(std::move(config));
   int res = trader->Init();
   LOG_INFO("res is: %d", res);

@@ -17,8 +17,6 @@
 #include <iostream>
 #include <atomic>
 
-namespace XGT {
-
 #define RED "\x1B[31m"
 #define GREEN "\x1B[32m"
 #define YELLOW "\x1B[33m"
@@ -63,10 +61,10 @@ class Logger {
 public:
   static void Init(const std::string& binary_name, bool log_to_std=false, const std::string& base_dir="./log", const int max_log_line=100000);
   static void LOG(LOGLEVEL L, const char* FILE, int LINE, const char* fmt, ...);
-  Logger();
   ~Logger();
   Logger(const Logger&) = delete;
 private:
+  Logger();
   inline static Logger& GetInstance() {
     static Logger LogInstance;
     return LogInstance;
@@ -90,15 +88,14 @@ private:
   std::unordered_map<int, InnerFileConfig*> configs_;
   std::thread log_writer;
   std::atomic<bool> stop_{false};
+  static std::once_flag instance_guard_;
 };
 
-#define LOG_DEBUG(fmt, ...) XGT::Logger::LOG(XGT::DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) XGT::Logger::LOG(XGT::INFO, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...) XGT::Logger::LOG(XGT::WARN, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) XGT::Logger::LOG(XGT::ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_FATAL(fmt, ...) XGT::Logger::LOG(XGT::FATAL, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_SUCCESS(fmt, ...) XGT::Logger::LOG(XGT::SUCCESS, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-
-} //namespace XGT
+#define LOG_DEBUG(fmt, ...) Logger::LOG(DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) Logger::LOG(INFO, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...) Logger::LOG(WARN, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) Logger::LOG(ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_FATAL(fmt, ...) Logger::LOG(FATAL, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_SUCCESS(fmt, ...) Logger::LOG(SUCCESS, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
 #endif

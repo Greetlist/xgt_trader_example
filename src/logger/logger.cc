@@ -1,11 +1,10 @@
 #include "logger/logger.h"
 
-namespace XGT {
-
 std::string Logger::log_basedir_;
 bool Logger::log_to_std_;
 std::string Logger::binary_name_;
 int Logger::max_log_line_;
+std::once_flag Logger::instance_guard_;
 
 int GenTimeString(char* buf, size_t len, const char* format_template) {
   memset(buf, 0, len);
@@ -61,11 +60,14 @@ void Logger::Init(const std::string& binary_name, bool log_to_std, const std::st
   Logger::binary_name_ = binary_name;
   Logger::max_log_line_ = max_log_line;
   Logger& instance = Logger::GetInstance();
-  instance.StartWriterThread();
+  std::call_once(instance_guard_, [&]() {
+    instance.StartWriterThread();
+  });
 }
 
 void Logger::StartWriterThread() {
-  log_writer = std::thread(&Logger::WriteLogToFile, this);
+  std::cout << "Start Write Log Thread" << std::endl;
+  log_writer = std::thread(&Logger::WriteLoop, this);
 }
 
 Logger::Logger() {
@@ -74,7 +76,9 @@ Logger::Logger() {
   }
 }
 
+__attribute__((destructor))
 Logger::~Logger() {
+  std::cout << "Stop Logger" << std::endl;
   stop_ = true;
   log_writer.join();
   WriteLogToFile(); //clear all cached log
@@ -139,5 +143,3 @@ Logger::InnerFileConfig* Logger::NewInnerConfigs(int level) {
   res->log_cache_ = new std::vector<std::string>();
   return res;
 }
-
-} //namespace XGT

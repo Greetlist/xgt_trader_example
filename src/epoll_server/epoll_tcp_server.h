@@ -23,6 +23,7 @@
 #include "epoll_server/global_def.h"
 #include "epoll_server/epoll_server_base.h"
 #include "tcp/tcp_connection.h"
+#include "queue/mpmc_queue.h"
 
 class EpollTCPServer : public EpollServerBase {
  public:
@@ -56,6 +57,7 @@ class EpollTCPServer : public EpollServerBase {
   int parallel_num_;
   int current_worker_idx_ = 0;
   std::atomic<bool> stop_;
+  //MPMCQueue<> message_queue_;
   static constexpr int kEventLen = 128;
   static constexpr int kListenBackLog = 128;
 };

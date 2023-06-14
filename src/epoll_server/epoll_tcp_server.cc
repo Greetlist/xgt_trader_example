@@ -136,7 +136,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         int client_fd;
         if (mode_ == EpollRunMode::UseProcess) {
           client_fd = recv_fd(pair_fd);
-          LOG_DEBUG("Clild Process recv fd: %d", client_fd);
+          LOG_DEBUG("Child Process recv fd: %d", client_fd);
         } else if (mode_ == EpollRunMode::UseThread) {
           char buf[16];
           memset(buf, 0, 16);
@@ -147,6 +147,8 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           client_fd = std::stoi(fd_str);
         }
 
+        std::cout << "new client: " << client_fd << std::endl;
+        LOG_INFO("Recv New Client: [%d]", client_fd);
         TcpConnection* new_connection = new TcpConnection(client_fd);
         new_connection->Init();
         struct epoll_event new_ev;
@@ -165,9 +167,10 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         if (n_read < 0 && errno != EAGAIN) {
           LOG_ERROR("Read From Client Error");
         } else if (n_read == 0) {
-          LOG_INFO("Client: [%d] close connection.", events[i].data.fd);
-          close(events[i].data.fd);
-          epoll_ctl(thread_ep, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+          int socket_fd = conn->GetSocketFd();
+          LOG_INFO("Client: [%d] close connection.", socket_fd);
+          close(socket_fd);
+          epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
           delete conn;
         } else if (n_read > 0) {
           LOG_INFO("Start to extract message.");

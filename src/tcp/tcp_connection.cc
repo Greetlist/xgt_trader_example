@@ -14,8 +14,7 @@ void TcpConnection::Init() {
 }
 
 int TcpConnection::Read() {
-  int n_read = read_buffer_.ReadFromFd(socket_fd_);
-  return n_read;
+  return read_buffer_.ReadFromFd(socket_fd_);
 }
 
 int TcpConnection::ExtractMessage() {
@@ -53,6 +52,7 @@ int TcpConnection::ExtractMessage() {
       latest_message_type_ = -1;
     }
   }
+  read_buffer_.IncrReadIndex(total_handle_bytes);
   return total_handle_bytes;
 }
 
@@ -68,4 +68,8 @@ int TcpConnection::Write(char* data, int data_len) {
 //TODO
 uint32_t TcpConnection::GetMessageLen(int message_type) {
   return 1;
+}
+
+int TcpConnection::GetSocketFd() {
+  return socket_fd_;
 }

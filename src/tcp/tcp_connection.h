@@ -21,6 +21,7 @@ public:
   void QueueMessage(char*, int);
   int Write(char*, int);
   uint32_t GetMessageLen(int);
+  int GetSocketFd();
 private:
   VecBuffer read_buffer_;
   VecBuffer write_buffer_;
