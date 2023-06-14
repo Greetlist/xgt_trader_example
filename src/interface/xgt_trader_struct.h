@@ -50,7 +50,9 @@ struct XGTReturnOrder {
   char order_sys_id[64];
   int return_code;
   char msg[32];
-  int volume;
+  int order_volume;
+  int traded_volume;
+  int cancel_volume;
   char instrument_id[32];
   char exchange_id[32];
   OrderSide side;
@@ -62,8 +64,9 @@ struct XGTReturnTrade {
   char order_sys_id[64];
   int return_code;
   char msg[32];
-  int volume;
+  int order_volume;
   int traded_volume;
+  int cancel_volume;
   char instrument_id[32];
   char exchange_id[32];
   OrderSide side;
@@ -98,7 +101,10 @@ struct XGTAccountInfo {
 struct XGTPositionInfo {
   char instrument_id[32];
   char exchange_id[32];
-  int volume;
+  int current_volume;
+  int yest_init_volume;
+  int today_buy_volume;
+  int today_sell_volume;
 };
 
 struct XGTOrderInfo {
@@ -128,6 +134,24 @@ struct XGTQryPositionResponse {
   char exchange_id[32];
   int volume;
 };
+
+typedef union _XGTRequest {
+  XGTLoginRequest login_req;
+  XGTLogoutRequest logout_req;
+  XGTSubscribeRequest subscribe_req;
+  XGTInsertOrderRequest insert_req;
+  XGTCancelOrderRequest cancel_req;
+  XGTQueryCommonRequest query_req;
+} XGTRequest;
+
+typedef union _XGTResponse {
+  XGTLoginResponse login_res;
+  XGTSubscribeTopicResponse subscribe_res;
+  XGTReturnOrder return_order;
+  XGTReturnTrade return_trade;
+  XGTReturnAction cancel_res;
+  XGTQryPositionResponse position_res;
+} XGTResponse;
 
 #pragma pack(pop)
 
