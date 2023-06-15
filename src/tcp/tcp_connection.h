@@ -10,6 +10,7 @@
 
 #include "logger/logger.h"
 #include "buffer/vec_buffer.h"
+#include "interface/message_coder.h"
 
 class TcpConnection {
 public:
@@ -20,13 +21,13 @@ public:
   int ExtractMessage();
   void QueueMessage(char*, int);
   int Write(char*, int);
-  uint32_t GetMessageLen(int);
   int GetSocketFd();
 private:
   VecBuffer read_buffer_;
   VecBuffer write_buffer_;
   int socket_fd_;
   int latest_message_type_;
+  int latest_message_len_;
   static constexpr int INT_SIZE = sizeof(int);
 };
 

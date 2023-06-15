@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/uio.h>
 #include <type_traits>
+#include <nlohmann/json.hpp>
 
 #include "logger/logger.h"
 #include "interface/util.h"
@@ -28,6 +29,12 @@ public:
   ~XGTClient();
   template <typename T>
   int Write(const T& req) {
+    //nlohmann::json req_json = MessageCoder::StructToJson<T>(req);
+    //int request_type = GetRequestType<T>(req);
+    //uint32_t req_type_no = htonl(request_type);
+
+
+
     uint32_t struct_size = sizeof(T);
     char buf[INT_SIZE * 2 + struct_size];
     int request_type = GetRequestType<T>(req);
