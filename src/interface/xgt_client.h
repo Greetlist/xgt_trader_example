@@ -16,6 +16,7 @@
 #include "logger/logger.h"
 #include "interface/util.h"
 #include "interface/xgt_trader_spi.h"
+#include "interface/message_coder.h"
 
 namespace XGT {
 
@@ -29,21 +30,17 @@ public:
   ~XGTClient();
   template <typename T>
   int Write(const T& req) {
-    //nlohmann::json req_json = MessageCoder::StructToJson<T>(req);
-    //int request_type = GetRequestType<T>(req);
-    //uint32_t req_type_no = htonl(request_type);
-
-
-
-    uint32_t struct_size = sizeof(T);
+    nlohmann::json req_json = MessageCoder::StructToJson(req);
+    std::string json_str = req_json.dump();
+    uint32_t struct_size = json_str.size();
     char buf[INT_SIZE * 2 + struct_size];
     int request_type = GetRequestType<T>(req);
     uint32_t request_size = INT_SIZE + struct_size;
     uint32_t req_size_no = htonl(request_size);
     uint32_t req_type_no = htonl(request_type);
-    memcpy(buf, &req_size_no, INT_SIZE);
-    memcpy(buf+INT_SIZE, &req_type_no, INT_SIZE);
-    memcpy(buf+INT_SIZE*2, &req, struct_size);
+    memcpy(buf, &req_type_no, INT_SIZE);
+    memcpy(buf+INT_SIZE, &req_size_no, INT_SIZE);
+    memcpy(buf+INT_SIZE*2, json_str.c_str(), struct_size);
     int res = write(client_fd_, buf, INT_SIZE * 2 + struct_size);
     if (res < 0) {
       LOG_ERROR("Write Error: %s", strerror(errno));

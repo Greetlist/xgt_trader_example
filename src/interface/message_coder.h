@@ -26,7 +26,7 @@ public:
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeRequest>::value) {
       res["channel"] = s.channel;
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeTopicResponse>::value) {
-      res["return_code"] = s.return_ode;
+      res["return_code"] = s.return_code;
       res["msg"] = s.msg;
     }
     return res;
@@ -45,17 +45,6 @@ public:
     return req;
   }
 
-  static XGT::XGTResponse JsonToResponse(int response_type, const nlohmann::json& json) {
-    XGT::XGTResponse res;
-    switch (response_type) {
-    case XGT::LoginResponse:
-      Convert2LoginResponse(json, res.login_res);
-    case XGT::SubscribeResponse:
-      Convert2LoginResponse(json, res.subscribe_res);
-    }
-    return res;
-  }
-
   template <class T>
   static void Convert2LoginRequest(const nlohmann::json& json, T& req) {
     if constexpr (std::is_same<T, XGT::XGTLoginRequest>::value) {
@@ -67,6 +56,17 @@ public:
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeRequest>::value) {
       req.channel = static_cast<XGT::SubscribeChannel>(json["channel"].get<int>());
     }
+  }
+
+  static XGT::XGTResponse JsonToResponse(int response_type, const nlohmann::json& json) {
+    XGT::XGTResponse res;
+    switch (response_type) {
+    case XGT::LoginResponse:
+      Convert2LoginResponse(json, res.login_res);
+    case XGT::SubscribeResponse:
+      Convert2LoginResponse(json, res.subscribe_res);
+    }
+    return res;
   }
 
   template <class T>
