@@ -84,6 +84,10 @@ uint64_t VecBuffer::GetTotalHandleBytes() {
   return total_handle_bytes_;
 }
 
+int VecBuffer::GetEnlargeCount() {
+  return enlarge_count_;
+}
+
 void VecBuffer::IncrReadIndex(int num) {
   read_index_ += num;
   total_handle_bytes_ += num;

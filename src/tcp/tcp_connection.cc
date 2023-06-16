@@ -4,8 +4,16 @@ TcpConnection::TcpConnection(int sock_fd) : socket_fd_(sock_fd), latest_message_
 }
 
 TcpConnection::~TcpConnection() {
-  LOG_INFO("Total Read Bytes: %ld", read_buffer_.GetTotalHandleBytes());
-  LOG_INFO("Total Write Bytes: %ld", write_buffer_.GetTotalHandleBytes());
+  LOG_INFO(
+    "Total Read Bytes: %ld, Total Write Bytes: %ld",
+    read_buffer_.GetTotalHandleBytes(),
+    write_buffer_.GetTotalHandleBytes()
+  );
+  LOG_INFO(
+    "ReadBuffer enlarge count: %d, WriteBuffer enlarge count: %d",
+    read_buffer_.GetEnlargeCount(),
+    write_buffer_.GetEnlargeCount()
+  );
 }
 
 void TcpConnection::Init() {
@@ -53,7 +61,7 @@ int TcpConnection::ExtractMessage() {
     }
 
     // current data is not enough to construct one message
-    if (latest_message_len_ > unhandle_bytes - INT_SIZE) {
+    if (latest_message_len_ > unhandle_bytes) {
       break;
     }
 
@@ -74,7 +82,6 @@ int TcpConnection::ExtractMessage() {
 void TcpConnection::QueueMessage(const std::string&& msg) {
   LOG_INFO("message_type is: %d, message_len: %d, message: %s", latest_message_type_, latest_message_len_, msg.c_str());
   nlohmann::json j = nlohmann::json::parse(msg);
-  LOG_INFO("json is: %s", j.dump().c_str());
   XGT::XGTRequest req = MessageCoder::JsonToRequest(latest_message_type_, j);
 }
 

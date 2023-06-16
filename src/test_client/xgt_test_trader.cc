@@ -38,12 +38,12 @@ int TestTrader::SubscribeTopic() {
 }
 
 int TestTrader::InsertOrder() {
-  LOG_INFO("%s", __FUNCTION__);
+  //LOG_INFO("%s", __FUNCTION__);
   return 0;
 }
 
 int TestTrader::CancelOrder() {
-  LOG_INFO("%s", __FUNCTION__);
+  //LOG_INFO("%s", __FUNCTION__);
   return 0;
 }
 

@@ -147,7 +147,6 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           client_fd = std::stoi(fd_str);
         }
 
-        std::cout << "new client: " << client_fd << std::endl;
         LOG_INFO("Recv New Client: [%d]", client_fd);
         TcpConnection* new_connection = new TcpConnection(client_fd);
         new_connection->Init();

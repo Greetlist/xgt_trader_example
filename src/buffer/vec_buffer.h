@@ -21,6 +21,7 @@ public:
   char* GetReadIndex();
   int GetUnHandleBytesNum();
   uint64_t GetTotalHandleBytes();
+  int GetEnlargeCount();
   void IncrReadIndex(int);
 private:
   void EnlargeBufferAndMoveData(char*, int);

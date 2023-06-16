@@ -76,7 +76,6 @@ Logger::Logger() {
   }
 }
 
-__attribute__((destructor))
 Logger::~Logger() {
   std::cout << "Stop Logger" << std::endl;
   stop_ = true;
@@ -88,7 +87,6 @@ Logger::~Logger() {
     delete configs_[i]->log_cache_;
     delete configs_[i];
   }
-  std::cout << "Quit Log Writer" << std::endl;
 }
 
 void Logger::WriteLoop() {
@@ -104,20 +102,29 @@ void Logger::WriteLogToFile() {
     std::vector<std::string> cache_copy = std::move(*(configs_[i]->log_cache_));
     configs_[i]->cache_mutex_.unlock();
     int size = cache_copy.size();
+    int write_index = 0;
     if (configs_[i]->current_log_line_ + size > Logger::max_log_line_) {
+      // fill current file
       int left = Logger::max_log_line_ - configs_[i]->current_log_line_;
       for (int j = 0; j < left; ++j) {
         configs_[i]->file_stream_ << cache_copy[j];
       }
-      configs_[i]->cache_mutex_.lock();
-      configs_[i]->file_stream_.flush();
-      configs_[i]->file_stream_.close();
-      configs_[i]->file_stream_ = NewFstream(i);
-      configs_[i]->cache_mutex_.unlock();
-      for (int j = left; j < size; ++j) {
-        configs_[i]->file_stream_ << cache_copy[j];
+      write_index += left;
+
+      //for all new log file
+      int new_file_count = (size - left) / Logger::max_log_line_ + 1;
+      for (int file_idx = 0; file_idx < new_file_count; ++file_idx) {
+        configs_[i]->file_stream_.flush();
+        configs_[i]->file_stream_.close();
+        configs_[i]->file_stream_ = NewFstream(i);
+        int current_max_index = (size - write_index) > Logger::max_log_line_ ? write_index + Logger::max_log_line_ : size;
+        for (int j = write_index; j < current_max_index; ++j) {
+          configs_[i]->file_stream_ << cache_copy[j];
+        }
+        write_index += (current_max_index - write_index);
       }
-      configs_[i]->current_log_line_ = size - left;
+
+      configs_[i]->current_log_line_ = (configs_[i]->current_log_line_ + size) % Logger::max_log_line_;
     } else {
       for (const std::string& s : cache_copy) {
         configs_[i]->file_stream_ << s;

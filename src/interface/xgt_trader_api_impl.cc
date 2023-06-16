@@ -12,59 +12,59 @@ void XGTTraderApiImpl::FreeTraderApi() {
 }
 
 int XGTTraderApiImpl::Login(const XGTLoginRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTLoginRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::Logout(const XGTLogoutRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTLogoutRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::SubscribeTopic(const XGTSubscribeRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTSubscribeRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::InsertOrder(const XGTInsertOrderRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTInsertOrderRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::CancelOrder(const XGTCancelOrderRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTCancelOrderRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::QryAccount(XGTQueryCommonRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   req.request_type = QueryAccountRequest;
   client_->Write<XGTQueryCommonRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::QryPosition(XGTQueryCommonRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   req.request_type = QueryPositionRequest;
   client_->Write<XGTQueryCommonRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::QryOrder(XGTQueryCommonRequest& req) {
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   req.request_type = QueryOrderRequest;
   client_->Write<XGTQueryCommonRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::QryTrade(XGTQueryCommonRequest& req) {
+  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
   req.request_type = QueryTradeRequest;
-  LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTQueryCommonRequest>(req);
   return 0;
 }
