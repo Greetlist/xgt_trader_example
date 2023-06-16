@@ -35,7 +35,8 @@ public:
     uint32_t struct_size = json_str.size();
     char buf[INT_SIZE * 2 + struct_size];
     int request_type = GetRequestType<T>(req);
-    uint32_t request_size = INT_SIZE + struct_size;
+    //std::cout << json_str << " " << json_str.size() << " " << request_type << std::endl;
+    uint32_t request_size = struct_size;
     uint32_t req_size_no = htonl(request_size);
     uint32_t req_type_no = htonl(request_type);
     memcpy(buf, &req_type_no, INT_SIZE);

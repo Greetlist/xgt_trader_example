@@ -1,5 +1,5 @@
 add_rules("mode.debug", "mode.release")
-add_requires("glog", "gflags")
+add_requires("glog", "gflags", "nlohmann_json")
 
 target("xgt")
     set_kind("static")

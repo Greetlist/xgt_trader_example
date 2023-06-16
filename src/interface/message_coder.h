@@ -2,6 +2,7 @@
 #define __MESSAGE_CODER_H_
 
 #include <string>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include "interface/xgt_trader_struct.h"
 
@@ -36,17 +37,20 @@ public:
     XGT::XGTRequest req;
     switch (request_type) {
     case XGT::LoginRequest:
-      Convert2LoginRequest(json, req.login_req);
+      Convert2Request(json, req.login_req);
+      break;
     case XGT::LogoutRequest:
-      Convert2LoginRequest(json, req.logout_req);
+      Convert2Request(json, req.logout_req);
+      break;
     case XGT::SubscribeRequest:
-      Convert2LoginRequest(json, req.subscribe_req);
+      Convert2Request(json, req.subscribe_req);
+      break;
     }
     return req;
   }
 
   template <class T>
-  static void Convert2LoginRequest(const nlohmann::json& json, T& req) {
+  static void Convert2Request(const nlohmann::json& json, T& req) {
     if constexpr (std::is_same<T, XGT::XGTLoginRequest>::value) {
       memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
       memcpy(&req.password, json["password"].get<std::string>().c_str(), 32);
@@ -63,8 +67,10 @@ public:
     switch (response_type) {
     case XGT::LoginResponse:
       Convert2LoginResponse(json, res.login_res);
+      break;
     case XGT::SubscribeResponse:
       Convert2LoginResponse(json, res.subscribe_res);
+      break;
     }
     return res;
   }

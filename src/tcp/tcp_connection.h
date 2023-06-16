@@ -19,7 +19,7 @@ public:
   void Init();
   int Read();
   int ExtractMessage();
-  void QueueMessage(char*, int);
+  void QueueMessage(const std::string&&);
   int Write(char*, int);
   int GetSocketFd();
 private:

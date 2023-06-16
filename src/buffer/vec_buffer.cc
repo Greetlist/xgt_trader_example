@@ -12,6 +12,7 @@ VecBuffer::~VecBuffer() {
 
 void VecBuffer::Init() {
   buffer_ = new char[init_buffer_size_];
+  memset(buffer_, 0, init_buffer_size_);
   current_buffer_size_ = init_buffer_size_;
 }
 
@@ -72,7 +73,7 @@ int VecBuffer::WriteToFd(int fd) {
 }
 
 char* VecBuffer::GetReadIndex() {
-  return buffer_;
+  return buffer_ + read_index_;
 }
 
 int VecBuffer::GetUnHandleBytesNum() {

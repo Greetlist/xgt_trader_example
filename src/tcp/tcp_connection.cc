@@ -60,19 +60,20 @@ int TcpConnection::ExtractMessage() {
     //has enough data for construction
     char message[latest_message_len_];
     memcpy(message, read_index, latest_message_len_);
-    QueueMessage(message, latest_message_len_);
+    QueueMessage(std::move(std::string(message, latest_message_len_)));
+    read_index += latest_message_len_;
     total_handle_bytes += latest_message_len_;
     unhandle_bytes -= latest_message_len_;
     latest_message_type_ = -1;
+    latest_message_len_ = -1;
   }
   read_buffer_.IncrReadIndex(total_handle_bytes);
   return total_handle_bytes;
 }
 
-void TcpConnection::QueueMessage(char* message, int message_len) {
-  LOG_INFO("message_type is: %d, message_len: %d", latest_message_type_, message_len);
-  std::string json_stream{message};
-  nlohmann::json j = nlohmann::json::parse(json_stream);
+void TcpConnection::QueueMessage(const std::string&& msg) {
+  LOG_INFO("message_type is: %d, message_len: %d, message: %s", latest_message_type_, latest_message_len_, msg.c_str());
+  nlohmann::json j = nlohmann::json::parse(msg);
   LOG_INFO("json is: %s", j.dump().c_str());
   XGT::XGTRequest req = MessageCoder::JsonToRequest(latest_message_type_, j);
 }
