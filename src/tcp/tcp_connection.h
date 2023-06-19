@@ -5,23 +5,27 @@
 #include <sys/uio.h>
 #include <string.h>
 #include <stdint.h>
+#include <map>
 
 #include <functional>
 
 #include "logger/logger.h"
 #include "buffer/vec_buffer.h"
 #include "interface/message_coder.h"
+#include "epoll_server/epoll_tcp_server.h"
 
+class EpollTCPServer;
 class TcpConnection {
 public:
-  explicit TcpConnection(int);
+  explicit TcpConnection(int, EpollTCPServer*);
   ~TcpConnection();
   void Init();
   int Read();
   int ExtractMessage();
-  void QueueMessage(const std::string&&);
+  void QueueMessage(std::pair<int, std::string*>*);
   int Write(char*, int);
   int GetSocketFd();
+  EpollTCPServer* server_;
 private:
   VecBuffer read_buffer_;
   VecBuffer write_buffer_;

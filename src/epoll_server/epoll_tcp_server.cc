@@ -8,6 +8,7 @@ ReturnCode EpollTCPServer::Init() {
   ReturnCode ret = ReturnCode::SUCCESS;
   main_ep_fd_ = epoll_create1(0);
   ret = InitListenSocket();
+  message_queue_ = new MPMCQueue<std::pair<int, std::string*>>(1000000);
   return ret;
 }
 
@@ -87,6 +88,11 @@ void EpollTCPServer::CreateThreads() {
     info.pair_fd = cur_pair[0];
     epoll_thread_info_vec_.emplace_back(std::move(info));
   }
+
+  for (int i = 0; i < parallel_num_; ++i) {
+    std::thread msg_process_thread = std::thread(&EpollTCPServer::MainMessageProcessor, this);
+    msg_processor_vec_.emplace_back(std::move(msg_process_thread));
+  }
 }
 
 void EpollTCPServer::CreateProcesses() {
@@ -148,7 +154,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         }
 
         LOG_INFO("Recv New Client: [%d]", client_fd);
-        TcpConnection* new_connection = new TcpConnection(client_fd);
+        TcpConnection* new_connection = new TcpConnection(client_fd, this);
         new_connection->Init();
         struct epoll_event new_ev;
         memset(&ev, 0, sizeof(new_ev));
@@ -176,6 +182,23 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           conn->ExtractMessage();
         }
       }
+    }
+  }
+}
+
+void EpollTCPServer::MainMessageProcessor() {
+  while (!stop_) {
+    std::pair<int, std::string*>* msg_pair = message_queue_->Pop();
+    if (msg_pair) {
+      int msg_type = msg_pair->first;
+      std::string* msg = msg_pair->second;
+      LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_type, msg->size(), msg->c_str());
+      nlohmann::json j = nlohmann::json::parse(*msg);
+      XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_type, j);
+
+      //remember to free to memory
+      delete msg;
+      delete msg_pair;
     }
   }
 }

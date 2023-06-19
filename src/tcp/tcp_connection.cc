@@ -1,6 +1,6 @@
 #include "tcp/tcp_connection.h"
 
-TcpConnection::TcpConnection(int sock_fd) : socket_fd_(sock_fd), latest_message_type_(-1), latest_message_len_(-1) {
+TcpConnection::TcpConnection(int sock_fd, EpollTCPServer* server) : server_(server), socket_fd_(sock_fd), latest_message_type_(-1), latest_message_len_(-1) {
 }
 
 TcpConnection::~TcpConnection() {
@@ -68,7 +68,8 @@ int TcpConnection::ExtractMessage() {
     //has enough data for construction
     char message[latest_message_len_];
     memcpy(message, read_index, latest_message_len_);
-    QueueMessage(std::move(std::string(message, latest_message_len_)));
+    std::pair<int, std::string*>* p = new std::pair<int, std::string*>(latest_message_type_, new std::string(message, latest_message_len_));
+    QueueMessage(p);
     read_index += latest_message_len_;
     total_handle_bytes += latest_message_len_;
     unhandle_bytes -= latest_message_len_;
@@ -79,10 +80,8 @@ int TcpConnection::ExtractMessage() {
   return total_handle_bytes;
 }
 
-void TcpConnection::QueueMessage(const std::string&& msg) {
-  LOG_INFO("message_type is: %d, message_len: %d, message: %s", latest_message_type_, latest_message_len_, msg.c_str());
-  nlohmann::json j = nlohmann::json::parse(msg);
-  XGT::XGTRequest req = MessageCoder::JsonToRequest(latest_message_type_, j);
+void TcpConnection::QueueMessage(std::pair<int, std::string*>* msg) {
+  while (!server_->message_queue_->Push(msg)) {}
 }
 
 int TcpConnection::Write(char* data, int data_len) {

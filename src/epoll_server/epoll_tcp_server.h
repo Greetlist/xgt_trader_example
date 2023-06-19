@@ -39,6 +39,7 @@ class EpollTCPServer : public EpollServerBase {
   void CreateThreads();
   void CreateProcesses();
   void MainWorker(int);
+  void MainMessageProcessor();
   void StartMainEpoll();
   int GetNextWorkerIndex();
   void DealClientConnection(int);
@@ -49,6 +50,8 @@ class EpollTCPServer : public EpollServerBase {
   std::vector<ThreadInfo> epoll_thread_info_vec_;
   std::vector<ProcessInfo> epoll_process_info_vec_;
 
+  std::vector<std::thread> msg_processor_vec_; //only support for thread mod
+
   std::string listen_addr_;
   int listen_port_;
   EpollRunMode mode_;
@@ -57,9 +60,10 @@ class EpollTCPServer : public EpollServerBase {
   int parallel_num_;
   int current_worker_idx_ = 0;
   std::atomic<bool> stop_;
-  //MPMCQueue<std::string> message_queue_;
+  MPMCQueue<std::pair<int,std::string*>>* message_queue_;
   static constexpr int kEventLen = 128;
   static constexpr int kListenBackLog = 128;
+  friend class TcpConnection;
 };
 
 #endif
