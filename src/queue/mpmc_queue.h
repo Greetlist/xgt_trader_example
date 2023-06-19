@@ -40,6 +40,7 @@ public:
     }
     data_buff_[cur_tail & mask_]->data_ = new_data;
     data_buff_[cur_tail & mask_]->reader_version_.store(cur_tail);
+    size_++;
     return true;
   }
 
@@ -52,6 +53,7 @@ public:
     T* res = data_buff_[cur_head & mask_]->data_;
     data_buff_[cur_head & mask_]->data_ = nullptr;
     data_buff_[cur_head & mask_]->writer_version_.store(cur_head + capacity_);
+    size_--;
     return res;
   }
 
@@ -60,6 +62,10 @@ public:
       return true;
     }
     return false;
+  }
+
+  inline uint64_t Size() {
+    return size_.load();
   }
 
 private:
@@ -74,8 +80,9 @@ private:
     std::atomic<uint64_t> writer_version_;
     std::atomic<uint64_t> reader_version_;
   };
-  std::atomic<uint64_t> tail_ = {0};
-  std::atomic<uint64_t> head_ = {0};
+  std::atomic<uint64_t> tail_{0};
+  std::atomic<uint64_t> head_{0};
+  std::atomic<uint64_t> size_{0};
   Node** data_buff_;
   int mask_ = 2;
   uint64_t capacity_;

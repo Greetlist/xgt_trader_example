@@ -33,6 +33,10 @@ void EpollTCPServer::Stop() {
     for (auto& info : epoll_thread_info_vec_) {
       info.thread_instance.join();
     }
+    for (auto& v : msg_processor_vec_) {
+      v.join();
+    }
+    produce_process_msg_.join();
   }
 }
 
@@ -93,6 +97,8 @@ void EpollTCPServer::CreateThreads() {
     std::thread msg_process_thread = std::thread(&EpollTCPServer::MainMessageProcessor, this);
     msg_processor_vec_.emplace_back(std::move(msg_process_thread));
   }
+
+  produce_process_msg_ = std::thread(&EpollTCPServer::ProduceProcessInfo, this);
 }
 
 void EpollTCPServer::CreateProcesses() {
@@ -200,6 +206,13 @@ void EpollTCPServer::MainMessageProcessor() {
       delete msg;
       delete msg_pair;
     }
+  }
+}
+
+void EpollTCPServer::ProduceProcessInfo() {
+  while (!stop_) {
+    LOG_INFO("msg queue len is: %ld", message_queue_->Size());
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 }
 

@@ -40,6 +40,7 @@ class EpollTCPServer : public EpollServerBase {
   void CreateProcesses();
   void MainWorker(int);
   void MainMessageProcessor();
+  void ProduceProcessInfo();
   void StartMainEpoll();
   int GetNextWorkerIndex();
   void DealClientConnection(int);
@@ -51,6 +52,7 @@ class EpollTCPServer : public EpollServerBase {
   std::vector<ProcessInfo> epoll_process_info_vec_;
 
   std::vector<std::thread> msg_processor_vec_; //only support for thread mod
+  std::thread produce_process_msg_; //only support for thread mod
 
   std::string listen_addr_;
   int listen_port_;
