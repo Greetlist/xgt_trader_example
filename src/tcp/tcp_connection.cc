@@ -1,6 +1,6 @@
 #include "tcp/tcp_connection.h"
 
-TcpConnection::TcpConnection(int sock_fd, EpollTCPServer* server) : server_(server), socket_fd_(sock_fd), latest_message_type_(-1), latest_message_len_(-1) {
+TcpConnection::TcpConnection(int sock_fd, EpollTCPServer* server) : server_(server), socket_fd_(sock_fd), latest_message_type_(-1), latest_message_len_(-1), total_handle_msg_(0) {
 }
 
 TcpConnection::~TcpConnection() {

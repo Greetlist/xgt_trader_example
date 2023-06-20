@@ -44,14 +44,19 @@ public:
     memcpy(buf+INT_SIZE*2, json_str.c_str(), struct_size);
     int res = write(client_fd_, buf, INT_SIZE * 2 + struct_size);
     if (res < 0) {
-      LOG_ERROR("Write Error: %s", strerror(errno));
+      if (errno != EAGAIN) {
+        LOG_ERROR("Write Error: %s", strerror(errno));
+      }
       return res;
     } else if (res == 0) {
       LOG_WARN("Connection is closed, Start Reconnect");
       Connect();
     } else {
-      LOG_INFO("Write %d bytes to server.", res);
+      //LOG_INFO("Write %d bytes to server.", res);
       total_write_bytes_ += res;
+    }
+    if (res < INT_SIZE * 2 + struct_size) {
+      LOG_WARN("Write Bytes: %d is less than Real Bytes: %d", res, INT_SIZE * 2 + struct_size);
     }
     return 0;
   }

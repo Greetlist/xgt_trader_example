@@ -72,7 +72,7 @@ ReturnCode EpollTCPServer::InitListenSocket() {
   ev.events = EPOLLIN | EPOLLET;
   ss = epoll_ctl(main_ep_fd_, EPOLL_CTL_ADD, listen_fd_, &ev);
   if (ss < 0) {
-    LOG_ERROR("Epoll Add Error");
+    LOG_ERROR("Epoll Add Error, error is: %s", strerror(errno));
     return ReturnCode::EP_CONTROL_ERROR;
   }
   LOG_SUCCESS("Create listen socket success");
