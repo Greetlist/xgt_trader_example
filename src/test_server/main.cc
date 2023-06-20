@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     {"listen_addr", "0.0.0.0"},
     {"listen_port", "10000"},
   };
-  Logger::Init(argv[0], true);
+  Logger::Init(argv[0], true, "./log");
   EpollServerBase* server = EpollServerFactory::GetServer(ServerType::TCP, config["listen_addr"], std::stoi(config["listen_port"]));
   server->Init();
   server->Start();

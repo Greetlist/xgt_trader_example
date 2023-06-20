@@ -16,6 +16,7 @@
 #include <chrono>
 #include <iostream>
 #include <atomic>
+#include <sstream>
 
 #define RED "\x1B[31m"
 #define GREEN "\x1B[32m"

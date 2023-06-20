@@ -184,7 +184,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
           delete conn;
         } else if (n_read > 0) {
-          LOG_INFO("Start to extract message.");
+          //LOG_INFO("Start to extract message.");
           conn->ExtractMessage();
         }
       }
@@ -198,7 +198,7 @@ void EpollTCPServer::MainMessageProcessor() {
     if (msg_pair) {
       int msg_type = msg_pair->first;
       std::string* msg = msg_pair->second;
-      LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_type, msg->size(), msg->c_str());
+      //LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_type, msg->size(), msg->c_str());
       nlohmann::json j = nlohmann::json::parse(*msg);
       XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_type, j);
 

@@ -55,9 +55,13 @@ void Logger::LOG(LOGLEVEL L, const char* FILE, int LINE, const char* fmt, ...) {
 }
 
 void Logger::Init(const std::string& binary_name, bool log_to_std, const std::string& base_dir, const int max_log_line) {
+  std::stringstream ss(binary_name);
+  std::string real_binary_name;
+  while (getline(ss, real_binary_name, '/')) {
+  }
   Logger::log_basedir_ = base_dir;
   Logger::log_to_std_ = log_to_std;
-  Logger::binary_name_ = binary_name;
+  Logger::binary_name_ = real_binary_name;
   Logger::max_log_line_ = max_log_line;
   Logger& instance = Logger::GetInstance();
   std::call_once(instance_guard_, [&]() {
