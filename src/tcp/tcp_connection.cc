@@ -14,6 +14,7 @@ TcpConnection::~TcpConnection() {
     read_buffer_.GetEnlargeCount(),
     write_buffer_.GetEnlargeCount()
   );
+  LOG_INFO("Total Handle Message: %d", total_handle_msg_);
 }
 
 void TcpConnection::Init() {
@@ -82,6 +83,7 @@ int TcpConnection::ExtractMessage() {
 
 void TcpConnection::QueueMessage(std::pair<int, std::string*>* msg) {
   while (!server_->message_queue_->Push(msg)) {}
+  total_handle_msg_++;
 }
 
 int TcpConnection::Write(char* data, int data_len) {

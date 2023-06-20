@@ -206,6 +206,9 @@ void EpollTCPServer::MainMessageProcessor() {
       delete msg;
       delete msg_pair;
     }
+    if (message_queue_->Size() == 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
   }
 }
 

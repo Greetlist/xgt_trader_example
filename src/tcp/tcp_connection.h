@@ -32,6 +32,7 @@ private:
   int socket_fd_;
   int latest_message_type_;
   int latest_message_len_;
+  int total_handle_msg_;
   static constexpr int INT_SIZE = sizeof(int);
 };
 

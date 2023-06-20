@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   TestTrader* trader = new TestTrader(std::move(config));
   int res = trader->Init();
   LOG_INFO("res is: %d", res);
-  for (int i = 0; i < 200; ++i) {
+  for (int i = 0; i < 2000; ++i) {
     trader->SubscribeTopic();
     trader->InsertOrder();
     trader->CancelOrder();

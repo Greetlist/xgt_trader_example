@@ -38,12 +38,32 @@ int TestTrader::SubscribeTopic() {
 }
 
 int TestTrader::InsertOrder() {
-  //LOG_INFO("%s", __FUNCTION__);
+  XGT::XGTInsertOrderRequest req;
+  strcpy(req.fund_account, config_["fund_account"].c_str());
+  strcpy(req.account, config_["account"].c_str());
+  memmove(req.instrument_id, "002142", 6);
+  memmove(req.exchange_id, "SZ", 2);
+  req.volume = 1000;
+  req.price = 22.04;
+  req.side = XGT::Buy;
+  req.type = XGT::LimitPrice;
+  int res = trade_api_->InsertOrder(req);
+  if (res != 0) {
+    LOG_ERROR("Insert Order Error");
+    return -1;
+  }
   return 0;
 }
 
 int TestTrader::CancelOrder() {
-  //LOG_INFO("%s", __FUNCTION__);
+  XGT::XGTCancelOrderRequest req;
+  memmove(req.order_sys_id, "T193800001", 10);
+  memmove(req.exchange_id, "SZ", 2);
+  int res = trade_api_->CancelOrder(req);
+  if (res != 0) {
+    LOG_ERROR("Cancel Order Error");
+    return -1;
+  }
   return 0;
 }
 
@@ -54,6 +74,7 @@ int TestTrader::QueryAccount() {
   int res = trade_api_->QryAccount(req);
   if (res != 0) {
     LOG_ERROR("query account error");
+    return -1;
   }
   return 0;
 }
@@ -65,6 +86,7 @@ int TestTrader::QueryPosition() {
   int res = trade_api_->QryPosition(req);
   if (res != 0) {
     LOG_ERROR("query position error");
+    return -1;
   }
   return 0;
 }
@@ -87,6 +109,7 @@ int TestTrader::QueryTrade() {
   int res = trade_api_->QryTrade(req);
   if (res != 0) {
     LOG_ERROR("query trade error");
+    return -1;
   }
   return 0;
 }
