@@ -42,21 +42,23 @@ public:
     memcpy(buf, &req_type_no, INT_SIZE);
     memcpy(buf+INT_SIZE, &req_size_no, INT_SIZE);
     memcpy(buf+INT_SIZE*2, json_str.c_str(), struct_size);
-    int res = write(client_fd_, buf, INT_SIZE * 2 + struct_size);
-    if (res < 0) {
-      if (errno != EAGAIN) {
-        LOG_ERROR("Write Error: %s", strerror(errno));
+
+    int total_bytes = INT_SIZE * 2 + struct_size;
+    int write_index = 0;
+    while (total_bytes > 0) {
+      int res = write(client_fd_, buf + write_index, total_bytes);
+      if (res < 0) {
+        if (errno != EAGAIN) {
+          LOG_ERROR("Write Error: %s", strerror(errno));
+        }
+      } else if (res == 0) {
+        LOG_WARN("Connection is closed, Start Reconnect");
+        Connect();
+      } else {
+        total_write_bytes_ += res;
+        total_bytes -= res;
+        write_index += res;
       }
-      return res;
-    } else if (res == 0) {
-      LOG_WARN("Connection is closed, Start Reconnect");
-      Connect();
-    } else {
-      //LOG_INFO("Write %d bytes to server.", res);
-      total_write_bytes_ += res;
-    }
-    if (res < INT_SIZE * 2 + struct_size) {
-      LOG_WARN("Write Bytes: %d is less than Real Bytes: %d", res, INT_SIZE * 2 + struct_size);
     }
     return 0;
   }

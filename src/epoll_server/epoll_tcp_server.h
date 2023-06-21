@@ -62,6 +62,7 @@ class EpollTCPServer : public EpollServerBase {
   int parallel_num_;
   int current_worker_idx_ = 0;
   std::atomic<bool> stop_;
+  std::atomic<uint64_t> process_msg_num_{0};
   MPMCQueue<std::pair<int,std::string*>>* message_queue_;
   static constexpr int kEventLen = 128;
   static constexpr int kListenBackLog = 128;

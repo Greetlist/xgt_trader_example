@@ -150,13 +150,9 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           client_fd = recv_fd(pair_fd);
           LOG_DEBUG("Child Process recv fd: %d", client_fd);
         } else if (mode_ == EpollRunMode::UseThread) {
-          char buf[16];
-          memset(buf, 0, 16);
-          if (read(pair_fd, buf, 16) < 0) {
+          if (read(pair_fd, &client_fd, sizeof(client_fd)) < 0) {
             continue;
           }
-          std::string fd_str{buf};
-          client_fd = std::stoi(fd_str);
         }
 
         LOG_INFO("Recv New Client: [%d]", client_fd);
@@ -168,7 +164,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         //new_ev.events = EPOLLIN | EPOLLET;
         new_ev.events = EPOLLIN;
         if ((ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev)) < 0) {
-          LOG_ERROR("Epoll Add Error");
+          LOG_ERROR("Epoll Add Error, error is : %s", strerror(errno));
           continue;
         }
       } else {
@@ -205,16 +201,17 @@ void EpollTCPServer::MainMessageProcessor() {
       //remember to free to memory
       delete msg;
       delete msg_pair;
+      process_msg_num_++;
     }
     if (message_queue_->Size() == 0) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   }
 }
 
 void EpollTCPServer::ProduceProcessInfo() {
   while (!stop_) {
-    LOG_INFO("msg queue len is: %ld", message_queue_->Size());
+    LOG_INFO("msg queue len is: %ld, total process msg num: %ld", message_queue_->Size(), process_msg_num_.load());
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 }
@@ -279,8 +276,7 @@ void EpollTCPServer::SendToChildProcess(int client_fd) {
 
 void EpollTCPServer::SendToChildThread(int client_fd) {
   ThreadInfo& info = epoll_thread_info_vec_[GetNextWorkerIndex()];
-  std::string client_fd_str = std::to_string(client_fd);
-  int status = write(info.pair_fd, client_fd_str.c_str(), client_fd_str.size());
+  int status = write(info.pair_fd, &client_fd, sizeof(client_fd));
   if (status <= 0) {
     LOG_ERROR("Write Error");
   }
