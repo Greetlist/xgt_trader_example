@@ -15,6 +15,7 @@
 #include <vector>
 #include <atomic>
 #include <mutex>
+#include <tuple>
 
 #include "util/fd_util.h"
 #include "util/ipc_unix.h"
@@ -63,7 +64,7 @@ class EpollTCPServer : public EpollServerBase {
   int current_worker_idx_ = 0;
   std::atomic<bool> stop_;
   std::atomic<uint64_t> process_msg_num_{0};
-  MPMCQueue<std::pair<int,std::string*>>* message_queue_;
+  MPMCQueue<std::tuple<TcpConnection*, int,std::string*>>* message_queue_;
   static constexpr int kEventLen = 128;
   static constexpr int kListenBackLog = 128;
   friend class TcpConnection;

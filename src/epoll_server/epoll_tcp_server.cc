@@ -190,17 +190,18 @@ void EpollTCPServer::MainWorker(int pair_fd) {
 
 void EpollTCPServer::MainMessageProcessor() {
   while (!stop_) {
-    std::pair<int, std::string*>* msg_pair = message_queue_->Pop();
-    if (msg_pair) {
-      int msg_type = msg_pair->first;
-      std::string* msg = msg_pair->second;
+    std::tuple<TcpConnection*, int, std::string*>* msg_tuple = message_queue_->Pop();
+    if (msg_tuple) {
+      TcpConnection* conn = std::get<0>(*msg_tuple);
+      int msg_type = std::get<1>(*msg_tuple);
+      std::string* msg = std::get<2>(*msg_tuple);
       //LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_type, msg->size(), msg->c_str());
       nlohmann::json j = nlohmann::json::parse(*msg);
       XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_type, j);
 
       //remember to free to memory
       delete msg;
-      delete msg_pair;
+      delete msg_tuple;
       process_msg_num_++;
     }
     if (message_queue_->Size() == 0) {

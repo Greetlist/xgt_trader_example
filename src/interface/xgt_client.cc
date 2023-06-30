@@ -3,13 +3,9 @@
 namespace XGT {
 
 XGTClient::XGTClient(const char* server, const int& port) : server_addr_(server), port_(port) {
-  input_buf_ = new char[buf_size_];
-  output_buf_ = new char[buf_size_];
 }
 
 XGTClient::~XGTClient() {
-  delete input_buf_;
-  delete output_buf_;
   LOG_INFO("Total Write bytes: %ld", total_write_bytes_);
 }
 

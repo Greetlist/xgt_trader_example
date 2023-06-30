@@ -20,9 +20,11 @@ public:
   explicit TcpConnection(int, EpollTCPServer*);
   ~TcpConnection();
   void Init();
+  int Connect();
+  void Close();
   int Read();
   int ExtractMessage();
-  void QueueMessage(std::pair<int, std::string*>*);
+  void QueueMessage(std::tuple<TcpConnection*, int, std::string*>*);
   int Write(char*, int);
   int GetSocketFd();
   EpollTCPServer* server_;

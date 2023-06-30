@@ -74,8 +74,6 @@ private:
   void FreeData(char* data);
   uint64_t total_write_bytes_;
   std::string server_addr_;
-  char* input_buf_;
-  char* output_buf_;
   XGTTraderSpi* spi_;
   int port_;
   int client_fd_;

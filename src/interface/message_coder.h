@@ -66,17 +66,17 @@ public:
     XGT::XGTResponse res;
     switch (response_type) {
     case XGT::LoginResponse:
-      Convert2LoginResponse(json, res.login_res);
+      Convert2Response(json, res.login_res);
       break;
     case XGT::SubscribeResponse:
-      Convert2LoginResponse(json, res.subscribe_res);
+      Convert2Response(json, res.subscribe_res);
       break;
     }
     return res;
   }
 
   template <class T>
-  static void Convert2LoginResponse(const nlohmann::json& json, T& res) {
+  static void Convert2Response(const nlohmann::json& json, T& res) {
     if constexpr (std::is_same<T, XGT::XGTLoginResponse>::value) {
       memcpy(&res.sh_fund_account, json["sh_fund_account"].get<std::string>().c_str(), 32);
       memcpy(&res.sz_fund_account, json["sz_fund_account"].get<std::string>().c_str(), 32);

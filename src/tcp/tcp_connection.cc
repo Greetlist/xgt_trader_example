@@ -69,7 +69,7 @@ int TcpConnection::ExtractMessage() {
     //has enough data for construction
     char message[latest_message_len_];
     memcpy(message, read_index, latest_message_len_);
-    std::pair<int, std::string*>* p = new std::pair<int, std::string*>(latest_message_type_, new std::string(message, latest_message_len_));
+    std::tuple<TcpConnection*, int, std::string*>* p = new std::tuple<TcpConnection*, int, std::string*>(this, latest_message_type_, new std::string(message, latest_message_len_));
     QueueMessage(p);
     read_index += latest_message_len_;
     total_handle_bytes += latest_message_len_;
@@ -81,12 +81,22 @@ int TcpConnection::ExtractMessage() {
   return total_handle_bytes;
 }
 
-void TcpConnection::QueueMessage(std::pair<int, std::string*>* msg) {
+void TcpConnection::QueueMessage(std::tuple<TcpConnection*, int, std::string*>* msg) {
   while (!server_->message_queue_->Push(msg)) {}
   total_handle_msg_++;
 }
 
 int TcpConnection::Write(char* data, int data_len) {
+  //check if output buffer has data
+  if (write_buffer_.GetUnHandleBytesNum() > 0) {
+
+  }
+
+
+  //try a writev for total data
+  
+
+  //save rest of data into input buffer
   write_buffer_.SaveData(data, data_len);
   return 0;
 }

@@ -25,6 +25,7 @@ class EpollServerFactory {
      }
    }
  private:
+  EpollServerFactory(const EpollServerFactory&) = delete;
   static std::once_flag instance_guard_;
   static EpollServerBase* instance_;
 };
