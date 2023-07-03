@@ -1,6 +1,6 @@
 #include "epoll_server/epoll_tcp_server.h"
 
-EpollTCPServer::EpollTCPServer(const EpollRunMode& mode, const int& parallel, const std::string& listen_addr, const int& listen_port) : mode_(mode), parallel_num_(parallel), listen_addr_(listen_addr), listen_port_(listen_port) {
+EpollTCPServer::EpollTCPServer(const EpollRunMode& mode, const EpollTriggerMode& trigger, const int& parallel, const std::string& listen_addr, const int& listen_port) : mode_(mode), trigger_mode_(trigger), parallel_num_(parallel), listen_addr_(listen_addr), listen_port_(listen_port) {
   stop_ = false;
 }
 
@@ -161,8 +161,11 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         struct epoll_event new_ev;
         memset(&ev, 0, sizeof(new_ev));
         new_ev.data.ptr = new_connection;
-        //new_ev.events = EPOLLIN | EPOLLET;
-        new_ev.events = EPOLLIN;
+
+        new_ev.events = EPOLLIN | EPOLLOUT;
+        if (trigger_mode_ == EpollTriggerMode::ET) {
+          new_ev.events |= EPOLLET;
+        }
         if ((ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev)) < 0) {
           LOG_ERROR("Epoll Add Error, error is : %s", strerror(errno));
           continue;
@@ -199,7 +202,7 @@ void EpollTCPServer::MainMessageProcessor() {
       nlohmann::json j = nlohmann::json::parse(*msg);
       XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_type, j);
 
-      //remember to free to memory
+      //remember to free memory
       delete msg;
       delete msg_tuple;
       process_msg_num_++;

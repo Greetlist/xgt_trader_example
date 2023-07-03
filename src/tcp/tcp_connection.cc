@@ -87,17 +87,8 @@ void TcpConnection::QueueMessage(std::tuple<TcpConnection*, int, std::string*>* 
 }
 
 int TcpConnection::Write(char* data, int data_len) {
-  //check if output buffer has data
-  if (write_buffer_.GetUnHandleBytesNum() > 0) {
-
-  }
-
-
-  //try a writev for total data
-  
-
-  //save rest of data into input buffer
   write_buffer_.SaveData(data, data_len);
+  write_buffer_.WriteToFd(socket_fd_);
   return 0;
 }
 

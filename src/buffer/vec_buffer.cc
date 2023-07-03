@@ -50,25 +50,28 @@ void VecBuffer::SaveData(char* data, int data_len) {
     EnlargeBufferAndMoveData(data + left_data_size, data_len - left_data_size);
   } else {
     memmove(buffer_ + write_index_, data, data_len);
+    write_index_ += data_len;
   }
 }
 
 int VecBuffer::WriteToFd(int fd) {
   int left_data_size = write_index_ - read_index_;
+  if (left_data_size == 0) {
+    return 0;
+  }
   struct iovec iov;
+
+  //try a writev for total data
   iov.iov_base = buffer_ + read_index_;
   iov.iov_len = left_data_size;
   int n_write = writev(fd, &iov, 1);
   if (n_write < 0) {
-    if (errno != EAGAIN) {
-      //log fatal
-    } else {
-      //just quit
+    if (errno != EAGAIN && errno != EWOULDBLOCK) {
+      return -1;
     }
-    return -1;
+    return 0;
   }
-
-  write_index_ += n_write;
+  IncrReadIndex(n_write);
   return n_write;
 }
 
@@ -90,6 +93,11 @@ int VecBuffer::GetEnlargeCount() {
 
 void VecBuffer::IncrReadIndex(int num) {
   read_index_ += num;
+  // all data in buffer are consumed, reset index to save memory
+  if (read_index_ == write_index_) {
+    read_index_ = 0;
+    write_index_ = 0;
+  }
   total_handle_bytes_ += num;
 }
 

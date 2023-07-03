@@ -10,6 +10,11 @@ enum class EpollRunMode {
   UnknownRunMode,
 };
 
+enum class EpollTriggerMode {
+  ET,
+  LT,
+};
+
 enum class ServerType {
   TCP = 0,
   UDP,

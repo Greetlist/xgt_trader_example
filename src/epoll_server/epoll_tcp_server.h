@@ -28,7 +28,7 @@
 
 class EpollTCPServer : public EpollServerBase {
  public:
-  explicit EpollTCPServer(const EpollRunMode&, const int&, const std::string&, const int&);
+  explicit EpollTCPServer(const EpollRunMode&, const EpollTriggerMode, const int&, const std::string&, const int&);
   ~EpollTCPServer() {
     Stop();
   };
@@ -58,6 +58,7 @@ class EpollTCPServer : public EpollServerBase {
   std::string listen_addr_;
   int listen_port_;
   EpollRunMode mode_;
+  EpollTriggerMode trigger_mode_;
   int listen_fd_;
   int main_ep_fd_;
   int parallel_num_;
