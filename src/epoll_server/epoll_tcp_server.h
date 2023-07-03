@@ -40,6 +40,10 @@ class EpollTCPServer : public EpollServerBase {
   void CreateThreads();
   void CreateProcesses();
   void MainWorker(int);
+  void AcceptClient(int);
+  void HandleRead(TcpConnection*);
+  void HandleWrite(TcpConnection*);
+  void CloseConnection(TcpConnection*);
   void MainMessageProcessor();
   void ProduceProcessInfo();
   void StartMainEpoll();

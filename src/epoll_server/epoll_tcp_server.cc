@@ -154,41 +154,70 @@ void EpollTCPServer::MainWorker(int pair_fd) {
             continue;
           }
         }
-
         LOG_INFO("Recv New Client: [%d]", client_fd);
-        TcpConnection* new_connection = new TcpConnection(client_fd, this);
-        new_connection->Init();
-        struct epoll_event new_ev;
-        memset(&ev, 0, sizeof(new_ev));
-        new_ev.data.ptr = new_connection;
-
-        new_ev.events = EPOLLIN | EPOLLOUT;
-        if (trigger_mode_ == EpollTriggerMode::ET) {
-          new_ev.events |= EPOLLET;
-        }
-        if ((ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev)) < 0) {
-          LOG_ERROR("Epoll Add Error, error is : %s", strerror(errno));
-          continue;
-        }
+        AcceptClient(client_fd);
       } else {
         TcpConnection* conn = static_cast<TcpConnection*>(events[i].data.ptr);
-        int n_read = conn->Read();
-
-        if (n_read < 0 && errno != EAGAIN) {
+        if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
           LOG_ERROR("Read From Client Error");
-        } else if (n_read == 0) {
-          int socket_fd = conn->GetSocketFd();
-          LOG_INFO("Client: [%d] close connection.", socket_fd);
-          close(socket_fd);
-          epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
-          delete conn;
-        } else if (n_read > 0) {
-          //LOG_INFO("Start to extract message.");
-          conn->ExtractMessage();
+          CloseConnection(conn);
+        } else if (events[i].events & EPOLLIN) {
+          HandleRead(conn);
+        } else if (events[i].events & EPOLLOUT) {
+          HandleWrite(conn);
+        } else {
+          LOG_WARN("Unhandle epoll event: ", events[i].events);
         }
       }
     }
   }
+  LOG_INFO("Quit Main Epoll Loop");
+}
+
+void EpollTCPServer::AcceptClient(int client_fd) {
+  TcpConnection* new_connection = new TcpConnection(client_fd, this);
+  new_connection->Init();
+  struct epoll_event new_ev;
+  memset(&ev, 0, sizeof(new_ev));
+  new_ev.data.ptr = new_connection;
+  
+  new_ev.events = EPOLLIN | EPOLLOUT;
+  if (trigger_mode_ == EpollTriggerMode::ET) {
+    new_ev.events |= EPOLLET;
+  }
+  if ((ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev)) < 0) {
+    LOG_ERROR("Epoll Add Error, error is : %s", strerror(errno));
+    continue;
+  }
+}
+
+void EpollTCPServer::HandleRead(TcpConnection* conn) {
+  do {
+    int n_read = conn->Read();
+    if (n_read < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+      LOG_ERROR("Read From Client Error");
+      CloseConnection(conn);
+      break;
+    } else if (n_read < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+      break;
+    } else if (n_read == 0) {
+      LOG_INFO("Client: [%d] close connection.", conn->GetSocketFd());
+      CloseConnection(conn);
+      break;
+    } else if (n_read > 0) {
+      conn->ExtractMessage();
+    }
+  } while (trigger_mode_ == EpollTriggerMode::ET);
+}
+
+void EpollTCPServer::HandleWrite(TcpConnection* conn) {
+}
+
+void EpollTCPServer::CloseConnection(TcpConnection* conn) {
+  int socket_fd = conn->GetSocketFd();
+  close(socket_fd);
+  epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
+  delete conn;
 }
 
 void EpollTCPServer::MainMessageProcessor() {

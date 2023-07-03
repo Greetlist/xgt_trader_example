@@ -27,12 +27,7 @@ int VecBuffer::ReadFromFd(int fd) {
   iov[1].iov_len = init_buffer_size_;
   int n_read = readv(fd, iov, 2);
   if (n_read < 0) {
-    if (errno != EAGAIN) {
-      //log fatal
-    } else {
-      //just quit
-    }
-    return -1;
+    return n_read;
   }
 
   if (n_read > left_data_size) {
