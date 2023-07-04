@@ -13,8 +13,10 @@
 #include "buffer/vec_buffer.h"
 #include "interface/message_coder.h"
 #include "epoll_server/epoll_tcp_server.h"
+#include "queue/queue_msg.h"
 
 class EpollTCPServer;
+class MessageInfo;
 class TcpConnection {
 public:
   explicit TcpConnection(int, EpollTCPServer*);
@@ -24,7 +26,7 @@ public:
   void Close();
   int Read();
   int ExtractMessage();
-  void QueueMessage(std::tuple<TcpConnection*, int, std::string*>*);
+  void QueueMessage(MessageInfo*);
   int Write(char*, int);
   int GetSocketFd();
   EpollTCPServer* server_;
@@ -37,5 +39,4 @@ private:
   int total_handle_msg_;
   static constexpr int INT_SIZE = sizeof(int);
 };
-
 #endif

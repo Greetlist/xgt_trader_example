@@ -69,7 +69,7 @@ int TcpConnection::ExtractMessage() {
     //has enough data for construction
     char message[latest_message_len_];
     memcpy(message, read_index, latest_message_len_);
-    std::tuple<TcpConnection*, int, std::string*>* p = new std::tuple<TcpConnection*, int, std::string*>(this, latest_message_type_, new std::string(message, latest_message_len_));
+    MessageInfo* p = new MessageInfo(this, latest_message_type_, std::move(std::string(message, latest_message_len_)));
     QueueMessage(p);
     read_index += latest_message_len_;
     total_handle_bytes += latest_message_len_;
@@ -81,7 +81,7 @@ int TcpConnection::ExtractMessage() {
   return total_handle_bytes;
 }
 
-void TcpConnection::QueueMessage(std::tuple<TcpConnection*, int, std::string*>* msg) {
+void TcpConnection::QueueMessage(MessageInfo* msg) {
   while (!server_->message_queue_->Push(msg)) {}
   total_handle_msg_++;
 }

@@ -25,10 +25,11 @@
 #include "epoll_server/epoll_server_base.h"
 #include "tcp/tcp_connection.h"
 #include "queue/mpmc_queue.h"
+#include "queue/queue_msg.h"
 
 class EpollTCPServer : public EpollServerBase {
  public:
-  explicit EpollTCPServer(const EpollRunMode&, const EpollTriggerMode, const int&, const std::string&, const int&);
+  explicit EpollTCPServer(const EpollRunMode&, const EpollTriggerMode&, const int&, const std::string&, const int&);
   ~EpollTCPServer() {
     Stop();
   };
@@ -40,10 +41,7 @@ class EpollTCPServer : public EpollServerBase {
   void CreateThreads();
   void CreateProcesses();
   void MainWorker(int);
-  void AcceptClient(int);
-  void HandleRead(TcpConnection*);
-  void HandleWrite(TcpConnection*);
-  void CloseConnection(TcpConnection*);
+  int AcceptClient(int, int);
   void MainMessageProcessor();
   void ProduceProcessInfo();
   void StartMainEpoll();
@@ -69,7 +67,7 @@ class EpollTCPServer : public EpollServerBase {
   int current_worker_idx_ = 0;
   std::atomic<bool> stop_;
   std::atomic<uint64_t> process_msg_num_{0};
-  MPMCQueue<std::tuple<TcpConnection*, int,std::string*>>* message_queue_;
+  MPMCQueue<MessageInfo>* message_queue_;
   static constexpr int kEventLen = 128;
   static constexpr int kListenBackLog = 128;
   friend class TcpConnection;

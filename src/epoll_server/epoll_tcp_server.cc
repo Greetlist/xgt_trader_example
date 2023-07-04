@@ -8,7 +8,7 @@ ReturnCode EpollTCPServer::Init() {
   ReturnCode ret = ReturnCode::SUCCESS;
   main_ep_fd_ = epoll_create1(0);
   ret = InitListenSocket();
-  message_queue_ = new MPMCQueue<std::pair<int, std::string*>>(1000000);
+  message_queue_ = new MPMCQueue<MessageInfo>(1000000);
   return ret;
 }
 
@@ -155,18 +155,42 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           }
         }
         LOG_INFO("Recv New Client: [%d]", client_fd);
-        AcceptClient(client_fd);
+        if (AcceptClient(thread_ep, client_fd) < 0) {
+          LOG_ERROR("Accept Error, error is : %s", strerror(errno));
+        }
       } else {
         TcpConnection* conn = static_cast<TcpConnection*>(events[i].data.ptr);
+        bool need_close = false;
         if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
           LOG_ERROR("Read From Client Error");
-          CloseConnection(conn);
+          need_close = true;
         } else if (events[i].events & EPOLLIN) {
-          HandleRead(conn);
+          do {
+            int n_read = conn->Read();
+            if (n_read < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+              LOG_ERROR("Read From Client Error");
+              need_close = true;
+              break;
+            } else if (n_read < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+              break;
+            } else if (n_read == 0) {
+              LOG_INFO("Client: [%d] close connection.", conn->GetSocketFd());
+              need_close = true;
+              break;
+            } else if (n_read > 0) {
+              conn->ExtractMessage();
+            }
+          } while (trigger_mode_ == EpollTriggerMode::ET);
         } else if (events[i].events & EPOLLOUT) {
-          HandleWrite(conn);
         } else {
           LOG_WARN("Unhandle epoll event: ", events[i].events);
+        }
+
+        if (need_close) {
+          int socket_fd = conn->GetSocketFd();
+          close(socket_fd);
+          epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
+          delete conn;
         }
       }
     }
@@ -174,66 +198,30 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   LOG_INFO("Quit Main Epoll Loop");
 }
 
-void EpollTCPServer::AcceptClient(int client_fd) {
+int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
   TcpConnection* new_connection = new TcpConnection(client_fd, this);
   new_connection->Init();
   struct epoll_event new_ev;
-  memset(&ev, 0, sizeof(new_ev));
+  memset(&new_ev, 0, sizeof(new_ev));
   new_ev.data.ptr = new_connection;
   
   new_ev.events = EPOLLIN | EPOLLOUT;
   if (trigger_mode_ == EpollTriggerMode::ET) {
     new_ev.events |= EPOLLET;
   }
-  if ((ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev)) < 0) {
-    LOG_ERROR("Epoll Add Error, error is : %s", strerror(errno));
-    continue;
-  }
-}
-
-void EpollTCPServer::HandleRead(TcpConnection* conn) {
-  do {
-    int n_read = conn->Read();
-    if (n_read < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
-      LOG_ERROR("Read From Client Error");
-      CloseConnection(conn);
-      break;
-    } else if (n_read < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-      break;
-    } else if (n_read == 0) {
-      LOG_INFO("Client: [%d] close connection.", conn->GetSocketFd());
-      CloseConnection(conn);
-      break;
-    } else if (n_read > 0) {
-      conn->ExtractMessage();
-    }
-  } while (trigger_mode_ == EpollTriggerMode::ET);
-}
-
-void EpollTCPServer::HandleWrite(TcpConnection* conn) {
-}
-
-void EpollTCPServer::CloseConnection(TcpConnection* conn) {
-  int socket_fd = conn->GetSocketFd();
-  close(socket_fd);
-  epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
-  delete conn;
+  return epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev);
 }
 
 void EpollTCPServer::MainMessageProcessor() {
   while (!stop_) {
-    std::tuple<TcpConnection*, int, std::string*>* msg_tuple = message_queue_->Pop();
-    if (msg_tuple) {
-      TcpConnection* conn = std::get<0>(*msg_tuple);
-      int msg_type = std::get<1>(*msg_tuple);
-      std::string* msg = std::get<2>(*msg_tuple);
+    MessageInfo* msg_info = message_queue_->Pop();
+    if (msg_info) {
       //LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_type, msg->size(), msg->c_str());
-      nlohmann::json j = nlohmann::json::parse(*msg);
-      XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_type, j);
+      nlohmann::json j = nlohmann::json::parse(msg_info->message_json);
+      XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
 
       //remember to free memory
-      delete msg;
-      delete msg_tuple;
+      delete msg_info;
       process_msg_num_++;
     }
     if (message_queue_->Size() == 0) {
