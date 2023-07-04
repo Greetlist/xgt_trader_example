@@ -1,3 +1,9 @@
+#ifndef __SERVER_FACTORY_H_
+#define __SERVER_FACTORY_H_
+
+#include <csignal>
+#include <iostream>
+
 #include "epoll_server/epoll_tcp_server.h"
 #include "epoll_server/epoll_udp_server.h"
 #include "epoll_server/global_def.h"
@@ -23,13 +29,19 @@ class EpollServerFactory {
          }
        });
      }
+     std::signal(45, EpollServerFactory::SignalHandler);
    }
  private:
   EpollServerFactory(const EpollServerFactory&) = delete;
   static std::once_flag instance_guard_;
   static EpollServerBase* instance_;
+  static void SignalHandler(int signal) {
+    instance_->Stop();
+  }
 };
 
 /* static */
 std::once_flag EpollServerFactory::instance_guard_;
 EpollServerBase* EpollServerFactory::instance_ = nullptr;
+
+#endif

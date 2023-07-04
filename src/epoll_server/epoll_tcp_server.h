@@ -30,9 +30,7 @@
 class EpollTCPServer : public EpollServerBase {
  public:
   explicit EpollTCPServer(const EpollRunMode&, const EpollTriggerMode&, const int&, const std::string&, const int&);
-  ~EpollTCPServer() {
-    Stop();
-  };
+  ~EpollTCPServer() {}
   virtual ReturnCode Init() override;
   virtual void Start() override;
   virtual void Stop() override;

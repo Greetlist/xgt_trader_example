@@ -30,14 +30,17 @@ void EpollTCPServer::Stop() {
       waitpid(info.process_id, &state, 0);
     }
   } else if (mode_ == EpollRunMode::UseThread) {
+    LOG_INFO("Wait epoll thread finish");
     for (auto& info : epoll_thread_info_vec_) {
       info.thread_instance.join();
     }
+    LOG_INFO("Wait message processor finish");
     for (auto& v : msg_processor_vec_) {
       v.join();
     }
     produce_process_msg_.join();
   }
+  LOG_INFO("All Thread Quit Successful");
 }
 
 ReturnCode EpollTCPServer::InitListenSocket() {
@@ -142,7 +145,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
 
   struct epoll_event events[kEventLen];
   while (!stop_) {
-    int num = epoll_wait(thread_ep, events, kEventLen, -1);
+    int num = epoll_wait(thread_ep, events, kEventLen, 1000);
     for (int i = 0; i < num; ++i) {
       if (events[i].data.fd == pair_fd) {
         int client_fd;
@@ -270,6 +273,7 @@ void EpollTCPServer::StartMainEpoll() {
       }
     }
   }
+  LOG_INFO("Quit Main Epoll Loop");
 }
 
 int EpollTCPServer::GetNextWorkerIndex() {
