@@ -32,11 +32,13 @@ enum ResponseType {
 enum SubscribeChannel {
   Order = 1,
   Trade = 2,
+  Unknown,
 };
 
 enum OrderSide {
   Buy = 1,
   Sell = 2,
+  Unknown,
 };
 
 enum OrderStatus {
@@ -53,6 +55,7 @@ enum OrderStatus {
 enum OrderType {
   MarketPrice = 1,
   LimitPrice = 2,
+  Unknown,
 };
 
 enum Exchange {

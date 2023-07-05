@@ -30,13 +30,13 @@ int XGTTraderApiImpl::SubscribeTopic(const XGTSubscribeRequest& req) {
 }
 
 int XGTTraderApiImpl::InsertOrder(const XGTInsertOrderRequest& req) {
-  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTInsertOrderRequest>(req);
   return 0;
 }
 
 int XGTTraderApiImpl::CancelOrder(const XGTCancelOrderRequest& req) {
-  //LOG_INFO("In Api Impl: %s", __FUNCTION__);
+  LOG_INFO("In Api Impl: %s", __FUNCTION__);
   client_->Write<XGTCancelOrderRequest>(req);
   return 0;
 }

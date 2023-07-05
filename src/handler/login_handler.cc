@@ -2,5 +2,5 @@
 #include "logger/logger.h"
 
 void LoginHandler::HandleRequest() {
-  LOG_INFO("%s", __FUNCTION__);
+  LOG_INFO("LoginHandler::HandleRequest");
 }

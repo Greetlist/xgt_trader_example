@@ -42,7 +42,7 @@ int TestTrader::InsertOrder() {
   strcpy(req.fund_account, config_["fund_account"].c_str());
   strcpy(req.account, config_["account"].c_str());
   memmove(req.instrument_id, "002142", 6);
-  memmove(req.exchange_id, "SZ", 2);
+  req.exchange_id = XGT::Exchange::SZ;
   req.volume = 1000;
   req.price = 22.04;
   req.side = XGT::Buy;
@@ -58,7 +58,7 @@ int TestTrader::InsertOrder() {
 int TestTrader::CancelOrder() {
   XGT::XGTCancelOrderRequest req;
   memmove(req.order_sys_id, "T193800001", 10);
-  memmove(req.exchange_id, "SZ", 2);
+  req.exchange_id = XGT::Exchange::SZ;
   int res = trade_api_->CancelOrder(req);
   if (res != 0) {
     LOG_ERROR("Cancel Order Error");
@@ -83,7 +83,7 @@ int TestTrader::QueryPosition() {
   XGT::XGTQueryPositionRequest req;
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
-  req.exchange = XGT::Exchange::ALL;
+  req.exchange_id = XGT::Exchange::ALL;
   int res = trade_api_->QryPosition(req);
   if (res != 0) {
     LOG_ERROR("query position error");

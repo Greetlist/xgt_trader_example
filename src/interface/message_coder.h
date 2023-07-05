@@ -17,16 +17,41 @@ public:
       res["account"] = s.account;
       res["password"] = s.password;
       res["op_station"] = s.op_station;
-    } else if constexpr (std::is_same<T, XGT::XGTLoginResponse>::value) {
-      res["sh_fund_account"] = s.sh_fund_account;
-      res["sz_fund_account"] = s.sz_fund_account;
-      res["return_code"] = s.return_code;
-      res["msg"] = s.msg;
     } else if constexpr (std::is_same<T, XGT::XGTLogoutRequest>::value) {
       res["account"] = s.account;
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeRequest>::value) {
       res["channel"] = s.channel;
+    } else if constexpr (std::is_same<T, XGT::XGTInsertOrderRequest>::value) {
+      res["price"] = s.price;
+      res["exchange_id"] = s.exchange_id;
+      res["instrument_id"] = s.instrument_id;
+      res["fund_account"] = s.fund_account;
+      res["account"] = s.account;
+      res["volume"] = s.volume;
+      res["side"] = s.side;
+      res["type"] = s.type;
+    } else if constexpr (std::is_same<T, XGT::XGTCancelOrderRequest>::value) {
+      res["order_sys_id"] = s.order_sys_id;
+      res["exchange_id"] = s.exchange_id;
+    } else if constexpr (std::is_same<T, XGT::XGTQueryAccountRequest>::value) {
+      res["fund_account"] = s.fund_account;
+      res["account"] = s.account;
+    } else if constexpr (std::is_same<T, XGT::XGTQueryPositionRequest>::value) {
+      res["fund_account"] = s.fund_account;
+      res["account"] = s.account;
+      res["exchange_id"] = s.exchange_id;
+    } else if constexpr (std::is_same<T, XGT::XGTQueryOrderRequest>::value) {
+      res["fund_account"] = s.fund_account;
+      res["account"] = s.account;
+    } else if constexpr (std::is_same<T, XGT::XGTQueryTradeRequest>::value) {
+      res["fund_account"] = s.fund_account;
+      res["account"] = s.account;
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeTopicResponse>::value) {
+      res["return_code"] = s.return_code;
+      res["msg"] = s.msg;
+    } else if constexpr (std::is_same<T, XGT::XGTLoginResponse>::value) {
+      res["sh_fund_account"] = s.sh_fund_account;
+      res["sz_fund_account"] = s.sz_fund_account;
       res["return_code"] = s.return_code;
       res["msg"] = s.msg;
     }
@@ -45,12 +70,21 @@ public:
     case XGT::SubscribeRequest:
       Convert2Request(json, req.subscribe_req);
       break;
+    case XGT::InsertOrderRequest:
+      Convert2Request(json, req.insert_req);
+      break;
+    case XGT::CancelOrderRequest:
+      Convert2Request(json, req.cancel_req);
+      break;
     case XGT::QueryAccountRequest:
       Convert2Request(json, req.query_account_req);
+      break;
     case XGT::QueryPositionRequest:
       Convert2Request(json, req.query_position_req);
+      break;
     case XGT::QueryOrderRequest:
       Convert2Request(json, req.query_order_req);
+      break;
     case XGT::QueryTradeRequest:
       Convert2Request(json, req.query_trade_req);
       break;
@@ -68,7 +102,29 @@ public:
       memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeRequest>::value) {
       req.channel = static_cast<XGT::SubscribeChannel>(json["channel"].get<int>());
+    } else if constexpr (std::is_same<T, XGT::XGTInsertOrderRequest>::value) {
+      req.price = json["price"].get<double>();
+      req.exchange_id = static_cast<XGT::Exchange>(json["exchange_id"].get<int>());
+      memcpy(&req.instrument_id, json["instrument_id"].get<std::string>().c_str(), 32);
+      memcpy(&req.fund_account, json["fund_account"].get<std::string>().c_str(), 32);
+      memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
+      req.volume = json["volume"].get<int>();
+      req.side = static_cast<XGT::OrderSide>(json["side"].get<int>());
+      req.type = static_cast<XGT::OrderType>(json["type"].get<int>());
+    } else if constexpr (std::is_same<T, XGT::XGTCancelOrderRequest>::value) {
+      memcpy(&req.order_sys_id, json["order_sys_id"].get<std::string>().c_str(), 64);
+      memcpy(&req.exchange_id, json["exchange_id"].get<std::string>().c_str(), 32);
     } else if constexpr (std::is_same<T, XGT::XGTQueryAccountRequest>::value) {
+      memcpy(&req.account, json["fund_account"].get<std::string>().c_str(), 32);
+      memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
+    } else if constexpr (std::is_same<T, XGT::XGTQueryPositionRequest>::value) {
+      memcpy(&req.account, json["fund_account"].get<std::string>().c_str(), 32);
+      memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
+      req.exchange_id = static_cast<XGT::Exchange>(json["exchange_id"].get<int>());
+    } else if constexpr (std::is_same<T, XGT::XGTQueryOrderRequest>::value) {
+      memcpy(&req.account, json["fund_account"].get<std::string>().c_str(), 32);
+      memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
+    } else if constexpr (std::is_same<T, XGT::XGTQueryTradeRequest>::value) {
       memcpy(&req.account, json["fund_account"].get<std::string>().c_str(), 32);
       memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
     }

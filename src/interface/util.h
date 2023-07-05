@@ -29,10 +29,6 @@ int GetRequestType(const T& req) {
   return RequestType::UnknownRequest;
 }
 
-
-
-
-
 } //namespace XGT
 
 #endif
