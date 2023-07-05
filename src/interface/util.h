@@ -17,8 +17,14 @@ int GetRequestType(const T& req) {
     return RequestType::InsertOrderRequest;
   } else if constexpr (std::is_same<T, XGTCancelOrderRequest>::value) {
     return RequestType::CancelOrderRequest;
-  } else if constexpr (std::is_same<T, XGTQueryCommonRequest>::value) {
-    return RequestType::QueryRequest;
+  } else if constexpr (std::is_same<T, XGTQueryAccountRequest>::value) {
+    return RequestType::QueryAccountRequest;
+  } else if constexpr (std::is_same<T, XGTQueryPositionRequest>::value) {
+    return RequestType::QueryPositionRequest;
+  } else if constexpr (std::is_same<T, XGTQueryOrderRequest>::value) {
+    return RequestType::QueryOrderRequest;
+  } else if constexpr (std::is_same<T, XGTQueryTradeRequest>::value) {
+    return RequestType::QueryTradeRequest;
   }
   return RequestType::UnknownRequest;
 }

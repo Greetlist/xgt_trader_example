@@ -14,10 +14,10 @@ public:
   virtual int SubscribeTopic(const XGTSubscribeRequest&) = 0;
   virtual int InsertOrder(const XGTInsertOrderRequest&) = 0;
   virtual int CancelOrder(const XGTCancelOrderRequest&) = 0;
-  virtual int QryAccount(XGTQueryCommonRequest&) = 0;
-  virtual int QryPosition(XGTQueryCommonRequest&) = 0;
-  virtual int QryOrder(XGTQueryCommonRequest&) = 0;
-  virtual int QryTrade(XGTQueryCommonRequest&) = 0;
+  virtual int QryAccount(const XGTQueryAccountRequest&) = 0;
+  virtual int QryPosition(const XGTQueryPositionRequest&) = 0;
+  virtual int QryOrder(const XGTQueryOrderRequest&) = 0;
+  virtual int QryTrade(const XGTQueryTradeRequest&) = 0;
 };
 
 }// namespace XGT

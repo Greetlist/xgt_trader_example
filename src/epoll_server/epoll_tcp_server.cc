@@ -222,6 +222,8 @@ void EpollTCPServer::MainMessageProcessor() {
       //LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_type, msg->size(), msg->c_str());
       nlohmann::json j = nlohmann::json::parse(msg_info->message_json);
       XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
+      std::unique_ptr<BaseHandler> handler = HandlerFactory::GetHandler(msg_info->message_type, req);
+      handler->HandleRequest();
 
       //remember to free memory
       delete msg_info;

@@ -25,10 +25,10 @@ public:
   virtual int SubscribeTopic(const XGTSubscribeRequest&) override;
   virtual int InsertOrder(const XGTInsertOrderRequest&) override;
   virtual int CancelOrder(const XGTCancelOrderRequest&) override;
-  virtual int QryAccount(XGTQueryCommonRequest&) override;
-  virtual int QryPosition(XGTQueryCommonRequest&) override;
-  virtual int QryOrder(XGTQueryCommonRequest&) override;
-  virtual int QryTrade(XGTQueryCommonRequest&) override;
+  virtual int QryAccount(const XGTQueryAccountRequest&) override;
+  virtual int QryPosition(const XGTQueryPositionRequest&) override;
+  virtual int QryOrder(const XGTQueryOrderRequest&) override;
+  virtual int QryTrade(const XGTQueryTradeRequest&) override;
   XGTTraderApiImpl() = delete;
   XGTTraderApiImpl(const XGTTraderApiImpl&) = delete;
 private:

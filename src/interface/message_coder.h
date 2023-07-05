@@ -45,6 +45,15 @@ public:
     case XGT::SubscribeRequest:
       Convert2Request(json, req.subscribe_req);
       break;
+    case XGT::QueryAccountRequest:
+      Convert2Request(json, req.query_account_req);
+    case XGT::QueryPositionRequest:
+      Convert2Request(json, req.query_position_req);
+    case XGT::QueryOrderRequest:
+      Convert2Request(json, req.query_order_req);
+    case XGT::QueryTradeRequest:
+      Convert2Request(json, req.query_trade_req);
+      break;
     }
     return req;
   }
@@ -59,6 +68,9 @@ public:
       memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
     } else if constexpr (std::is_same<T, XGT::XGTSubscribeRequest>::value) {
       req.channel = static_cast<XGT::SubscribeChannel>(json["channel"].get<int>());
+    } else if constexpr (std::is_same<T, XGT::XGTQueryAccountRequest>::value) {
+      memcpy(&req.account, json["fund_account"].get<std::string>().c_str(), 32);
+      memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
     }
   }
 

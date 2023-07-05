@@ -41,31 +41,27 @@ int XGTTraderApiImpl::CancelOrder(const XGTCancelOrderRequest& req) {
   return 0;
 }
 
-int XGTTraderApiImpl::QryAccount(XGTQueryCommonRequest& req) {
+int XGTTraderApiImpl::QryAccount(const XGTQueryAccountRequest& req) {
   //LOG_INFO("In Api Impl: %s", __FUNCTION__);
-  req.request_type = QueryAccountRequest;
-  client_->Write<XGTQueryCommonRequest>(req);
+  client_->Write<XGTQueryAccountRequest>(req);
   return 0;
 }
 
-int XGTTraderApiImpl::QryPosition(XGTQueryCommonRequest& req) {
+int XGTTraderApiImpl::QryPosition(const XGTQueryPositionRequest& req) {
   //LOG_INFO("In Api Impl: %s", __FUNCTION__);
-  req.request_type = QueryPositionRequest;
-  client_->Write<XGTQueryCommonRequest>(req);
+  client_->Write<XGTQueryPositionRequest>(req);
   return 0;
 }
 
-int XGTTraderApiImpl::QryOrder(XGTQueryCommonRequest& req) {
+int XGTTraderApiImpl::QryOrder(const XGTQueryOrderRequest& req) {
   //LOG_INFO("In Api Impl: %s", __FUNCTION__);
-  req.request_type = QueryOrderRequest;
-  client_->Write<XGTQueryCommonRequest>(req);
+  client_->Write<XGTQueryOrderRequest>(req);
   return 0;
 }
 
-int XGTTraderApiImpl::QryTrade(XGTQueryCommonRequest& req) {
+int XGTTraderApiImpl::QryTrade(const XGTQueryTradeRequest& req) {
   //LOG_INFO("In Api Impl: %s", __FUNCTION__);
-  req.request_type = QueryTradeRequest;
-  client_->Write<XGTQueryCommonRequest>(req);
+  client_->Write<XGTQueryTradeRequest>(req);
   return 0;
 }
 

@@ -68,7 +68,7 @@ int TestTrader::CancelOrder() {
 }
 
 int TestTrader::QueryAccount() {
-  XGT::XGTQueryCommonRequest req;
+  XGT::XGTQueryAccountRequest req;
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   int res = trade_api_->QryAccount(req);
@@ -80,9 +80,10 @@ int TestTrader::QueryAccount() {
 }
 
 int TestTrader::QueryPosition() {
-  XGT::XGTQueryCommonRequest req;
+  XGT::XGTQueryPositionRequest req;
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
+  req.exchange = XGT::Exchange::ALL;
   int res = trade_api_->QryPosition(req);
   if (res != 0) {
     LOG_ERROR("query position error");
@@ -92,7 +93,7 @@ int TestTrader::QueryPosition() {
 }
 
 int TestTrader::QueryOrder() {
-  XGT::XGTQueryCommonRequest req;
+  XGT::XGTQueryOrderRequest req;
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   int res = trade_api_->QryOrder(req);
@@ -103,7 +104,7 @@ int TestTrader::QueryOrder() {
 }
 
 int TestTrader::QueryTrade() {
-  XGT::XGTQueryCommonRequest req;
+  XGT::XGTQueryTradeRequest req;
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   int res = trade_api_->QryTrade(req);

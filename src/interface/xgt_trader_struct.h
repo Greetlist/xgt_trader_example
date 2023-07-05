@@ -84,10 +84,25 @@ struct XGTReturnAction {
   OrderStatus order_status;
 };
 
-struct XGTQueryCommonRequest {
+struct XGTQueryAccountRequest {
   char fund_account[32];
   char account[32];
-  RequestType request_type;
+};
+
+struct XGTQueryPositionRequest {
+  char fund_account[32];
+  char account[32];
+  Exchange exchange;
+};
+
+struct XGTQueryOrderRequest {
+  char fund_account[32];
+  char account[32];
+};
+
+struct XGTQueryTradeRequest {
+  char fund_account[32];
+  char account[32];
 };
 
 struct XGTAccountInfo {
@@ -141,7 +156,10 @@ typedef union _XGTRequest {
   XGTSubscribeRequest subscribe_req;
   XGTInsertOrderRequest insert_req;
   XGTCancelOrderRequest cancel_req;
-  XGTQueryCommonRequest query_req;
+  XGTQueryAccountRequest query_account_req;
+  XGTQueryPositionRequest query_position_req;
+  XGTQueryOrderRequest query_order_req;
+  XGTQueryTradeRequest query_trade_req;
 } XGTRequest;
 
 typedef union _XGTResponse {

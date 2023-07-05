@@ -9,7 +9,6 @@ enum RequestType {
   SubscribeRequest,
   InsertOrderRequest,
   CancelOrderRequest,
-  QueryRequest,
   QueryAccountRequest,
   QueryPositionRequest,
   QueryOrderRequest,
@@ -41,7 +40,7 @@ enum OrderSide {
 };
 
 enum OrderStatus {
-  NotfilL = 1,
+  Notified = 1,
   Accepted = 2,
   PartTraded = 3,
   AllTraded = 4,
@@ -54,6 +53,12 @@ enum OrderStatus {
 enum OrderType {
   MarketPrice = 1,
   LimitPrice = 2,
+};
+
+enum Exchange {
+  SH = 1,
+  SZ = 2,
+  ALL = 3,
 };
 
 }// namespace XGT

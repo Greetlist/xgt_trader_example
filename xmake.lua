@@ -15,7 +15,7 @@ target("logger")
 
 target("epoll_server")
     set_kind("static")
-    add_files("src/buffer/*.cc", "src/epoll_server/*.cc", "src/tcp/*.cc", "src/util/*.cc")
+    add_files("src/buffer/*.cc", "src/epoll_server/*.cc", "src/tcp/*.cc", "src/util/*.cc", "src/handler/*.cc")
     add_includedirs("src")
     add_cxflags("-g")
     add_deps("logger")

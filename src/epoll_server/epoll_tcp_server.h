@@ -16,6 +16,7 @@
 #include <atomic>
 #include <mutex>
 #include <tuple>
+#include <memory>
 
 #include "util/fd_util.h"
 #include "util/ipc_unix.h"
@@ -26,6 +27,7 @@
 #include "tcp/tcp_connection.h"
 #include "queue/mpmc_queue.h"
 #include "queue/queue_msg.h"
+#include "handler/handler_factory.h"
 
 class EpollTCPServer : public EpollServerBase {
  public:
