@@ -32,13 +32,13 @@ enum ResponseType {
 enum SubscribeChannel {
   Order = 1,
   Trade = 2,
-  Unknown,
+  UnknownChannel,
 };
 
 enum OrderSide {
   Buy = 1,
   Sell = 2,
-  Unknown,
+  UnknownOrderSide,
 };
 
 enum OrderStatus {
@@ -50,18 +50,20 @@ enum OrderStatus {
   Canceling = 6,
   CancelDone = 7,
   CancelFailed = 8,
+  UnknownOrderStatus,
 };
 
 enum OrderType {
   MarketPrice = 1,
   LimitPrice = 2,
-  Unknown,
+  UnknownOrderType,
 };
 
 enum Exchange {
   SH = 1,
   SZ = 2,
   ALL = 3,
+  UnknownExchange,
 };
 
 }// namespace XGT

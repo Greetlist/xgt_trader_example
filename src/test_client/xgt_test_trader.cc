@@ -16,6 +16,7 @@ int TestTrader::Init() {
     return -1;
   }
   XGT::XGTLoginRequest req;
+  memset(&req, 0, sizeof(XGT::XGTLoginRequest));
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.password, config_["password"].c_str());
   strcpy(req.op_station, config_["op_station"].c_str());
@@ -23,8 +24,17 @@ int TestTrader::Init() {
   return res;
 }
 
+int TestTrader::Logout() {
+  XGT::XGTLogoutRequest req;
+  memset(&req, 0, sizeof(XGT::XGTLogoutRequest));
+  strcpy(req.account, config_["account"].c_str());
+  int res = trade_api_->Logout(req);
+  return res;
+}
+
 int TestTrader::SubscribeTopic() {
   XGT::XGTSubscribeRequest req;
+  memset(&req, 0, sizeof(XGT::XGTSubscribeRequest));
   std::vector<XGT::SubscribeChannel> channel_list{XGT::Order, XGT::Trade};
   for (const auto& channel : channel_list) {
     req.channel = channel;
@@ -39,6 +49,7 @@ int TestTrader::SubscribeTopic() {
 
 int TestTrader::InsertOrder() {
   XGT::XGTInsertOrderRequest req;
+  memset(&req, 0, sizeof(XGT::XGTInsertOrderRequest));
   strcpy(req.fund_account, config_["fund_account"].c_str());
   strcpy(req.account, config_["account"].c_str());
   memmove(req.instrument_id, "002142", 6);
@@ -57,6 +68,7 @@ int TestTrader::InsertOrder() {
 
 int TestTrader::CancelOrder() {
   XGT::XGTCancelOrderRequest req;
+  memset(&req, 0, sizeof(XGT::XGTCancelOrderRequest));
   memmove(req.order_sys_id, "T193800001", 10);
   req.exchange_id = XGT::Exchange::SZ;
   int res = trade_api_->CancelOrder(req);
@@ -69,6 +81,7 @@ int TestTrader::CancelOrder() {
 
 int TestTrader::QueryAccount() {
   XGT::XGTQueryAccountRequest req;
+  memset(&req, 0, sizeof(XGT::XGTQueryAccountRequest));
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   int res = trade_api_->QryAccount(req);
@@ -81,6 +94,7 @@ int TestTrader::QueryAccount() {
 
 int TestTrader::QueryPosition() {
   XGT::XGTQueryPositionRequest req;
+  memset(&req, 0, sizeof(XGT::XGTQueryPositionRequest));
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   req.exchange_id = XGT::Exchange::ALL;
@@ -94,6 +108,7 @@ int TestTrader::QueryPosition() {
 
 int TestTrader::QueryOrder() {
   XGT::XGTQueryOrderRequest req;
+  memset(&req, 0, sizeof(XGT::XGTQueryOrderRequest));
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   int res = trade_api_->QryOrder(req);
@@ -105,6 +120,7 @@ int TestTrader::QueryOrder() {
 
 int TestTrader::QueryTrade() {
   XGT::XGTQueryTradeRequest req;
+  memset(&req, 0, sizeof(XGT::XGTQueryTradeRequest));
   strcpy(req.account, config_["account"].c_str());
   strcpy(req.fund_account, config_["fund_account"].c_str());
   int res = trade_api_->QryTrade(req);

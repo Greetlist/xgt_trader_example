@@ -13,11 +13,6 @@ struct XGTLoginRequest {
   char account[32];
   char password[32];
   char op_station[256];
-  XGTLoginRequest() {
-    memset(account, 0, 32);
-    memset(password, 0, 32);
-    memset(op_station, 0, 32);
-  }
 };
 
 struct XGTLoginResponse {
@@ -25,35 +20,19 @@ struct XGTLoginResponse {
   char sz_fund_account[32];
   int return_code;
   char msg[32];
-  XGTLoginResponse() {
-    memset(sh_fund_account, 0, 32);
-    memset(sz_fund_account, 0, 32);
-    return_code = 0;
-    memset(msg, 0, 32);
-  }
 };
 
 struct XGTLogoutRequest {
   char account[32];
-  XGTLogoutRequest() {
-    memset(account, 0, 32);
-  }
 };
 
 struct XGTSubscribeRequest {
   SubscribeChannel channel;
-  XGTSubscribeRequest() {
-    channel = SubscribeChannel::Unknown;
-  }
 };
 
 struct XGTSubscribeTopicResponse {
   int return_code;
   char msg[32];
-  XGTSubscribeTopicResponse() {
-    return_code = 0;
-    memset(msg, 0, 32);
-  }
 };
 
 struct XGTInsertOrderRequest {
@@ -65,16 +44,6 @@ struct XGTInsertOrderRequest {
   int volume;
   OrderSide side;
   OrderType type;
-  XGTInsertOrderRequest() {
-    price = 0.0;
-    exchange_id = Exchange::ALL;
-    memset(instrument_id, 0, 32);
-    memset(fund_account, 0, 32);
-    memset(account, 0, 32);
-    volume = 0;
-    side = OrderSide::Unknown;
-    type = OrderType::Unknown;
-  }
 };
 
 struct XGTReturnOrder {
@@ -88,9 +57,8 @@ struct XGTReturnOrder {
   char instrument_id[32];
   XGT::Exchange exchange_id;
   OrderSide side;
+  OrderType type;
   OrderStatus order_status;
-  XGTReturnOrder() {
-  }
 };
 
 struct XGTReturnTrade {
@@ -104,6 +72,8 @@ struct XGTReturnTrade {
   char instrument_id[32];
   XGT::Exchange exchange_id;
   OrderSide side;
+  OrderType type;
+  OrderStatus order_status;
 };
 
 struct XGTCancelOrderRequest {
@@ -174,7 +144,7 @@ struct XGTTradeInfo {
   XGT::Exchange exchange_id;
   int traded_volume;
   double traded_price;
-  int64_t trade_time;
+  int64_t traded_time;
   OrderSide side;
 };
 

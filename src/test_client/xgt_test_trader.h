@@ -15,6 +15,7 @@ public:
   TestTrader(std::unordered_map<std::string, std::string>&& config);
   ~TestTrader();
   int Init();
+  int Logout();
   int SubscribeTopic();
   int InsertOrder();
   int CancelOrder();

@@ -113,7 +113,7 @@ public:
       req.type = static_cast<XGT::OrderType>(json["type"].get<int>());
     } else if constexpr (std::is_same<T, XGT::XGTCancelOrderRequest>::value) {
       memcpy(&req.order_sys_id, json["order_sys_id"].get<std::string>().c_str(), 64);
-      memcpy(&req.exchange_id, json["exchange_id"].get<std::string>().c_str(), 32);
+      req.exchange_id = static_cast<XGT::Exchange>(json["exchange_id"].get<int>());
     } else if constexpr (std::is_same<T, XGT::XGTQueryAccountRequest>::value) {
       memcpy(&req.account, json["fund_account"].get<std::string>().c_str(), 32);
       memcpy(&req.account, json["account"].get<std::string>().c_str(), 32);
