@@ -2,5 +2,5 @@
 #include "logger/logger.h"
 
 void SubscribeHandler::HandleRequest() {
-  LOG_INFO("SubscribeHandler::HandleRequest");
+  //LOG_INFO("SubscribeHandler::HandleRequest");
 }

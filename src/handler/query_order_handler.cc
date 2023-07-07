@@ -2,5 +2,5 @@
 #include "logger/logger.h"
 
 void QueryOrderHandler::HandleRequest() {
-  LOG_INFO("QueryOrderHandler::HandleRequest");
+  //LOG_INFO("QueryOrderHandler::HandleRequest");
 }

@@ -2,5 +2,5 @@
 #include "logger/logger.h"
 
 void OrderHandler::HandleRequest() {
-  LOG_INFO("OrderHandler::HandleRequest");
+  //LOG_INFO("OrderHandler::HandleRequest");
 }

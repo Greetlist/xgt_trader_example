@@ -2,5 +2,5 @@
 #include "logger/logger.h"
 
 void LogoutHandler::HandleRequest() {
-  LOG_INFO("LogoutHandler::HandleRequest");
+  //LOG_INFO("LogoutHandler::HandleRequest");
 }

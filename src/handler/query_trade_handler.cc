@@ -2,5 +2,5 @@
 #include "logger/logger.h"
 
 void QueryTradeHandler::HandleRequest() {
-  LOG_INFO("QueryTradeHandler::HandleRequest");
+  //LOG_INFO("QueryTradeHandler::HandleRequest");
 }
