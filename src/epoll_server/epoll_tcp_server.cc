@@ -135,7 +135,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   struct epoll_event ev;
   memset(&ev, 0, sizeof(ev));
   ev.data.fd = pair_fd;
-  ev.events = EPOLLIN | EPOLLET;
+  ev.events = EPOLLIN;
 
   int ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, pair_fd, &ev);
   if (ss < 0) {
@@ -154,6 +154,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           LOG_DEBUG("Child Process recv fd: %d", client_fd);
         } else if (mode_ == EpollRunMode::UseThread) {
           if (read(pair_fd, &client_fd, sizeof(client_fd)) < 0) {
+            LOG_ERROR("Read From pair_fd error: %s", strerror(errno));
             continue;
           }
         }
@@ -175,6 +176,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
               need_close = true;
               break;
             } else if (n_read < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+              LOG_INFO("[%d] socket EAGAIN", conn->GetSocketFd());
               break;
             } else if (n_read == 0) {
               LOG_INFO("Client: [%d] close connection.", conn->GetSocketFd());
@@ -210,7 +212,7 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
   struct epoll_event new_ev;
   memset(&new_ev, 0, sizeof(new_ev));
   new_ev.data.ptr = new_connection;
-  
+
   new_ev.events = EPOLLIN | EPOLLOUT;
   if (trigger_mode_ == EpollTriggerMode::ET) {
     new_ev.events |= EPOLLET;
@@ -219,7 +221,6 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
 }
 
 void EpollTCPServer::MainMessageProcessor() {
-  LOG_INFO("Start MainMessageProcessor");
   while (!stop_) {
     MessageInfo* msg_info = message_queue_->Pop();
     if (msg_info) {

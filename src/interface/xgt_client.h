@@ -50,8 +50,6 @@ public:
       if (res < 0) {
         if (errno != EAGAIN) {
           LOG_ERROR("Write Error: %s", strerror(errno));
-        } else {
-          LOG_INFO("EAGAIN");
         }
       } else if (res == 0) {
         LOG_WARN("Connection is closed, Start Reconnect");
