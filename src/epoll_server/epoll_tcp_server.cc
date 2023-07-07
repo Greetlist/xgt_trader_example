@@ -1,6 +1,6 @@
 #include "epoll_server/epoll_tcp_server.h"
 
-EpollTCPServer::EpollTCPServer(const EpollRunMode& mode, const EpollTriggerMode& trigger, const int& parallel, const std::string& listen_addr, const int& listen_port) : mode_(mode), trigger_mode_(trigger), parallel_num_(parallel), listen_addr_(listen_addr), listen_port_(listen_port) {
+EpollTCPServer::EpollTCPServer(const EpollRunMode& mode, const EpollTriggerMode& trigger, const int& parallel, const int& msg_processor_num, const std::string& listen_addr, const int& listen_port) : mode_(mode), trigger_mode_(trigger), parallel_num_(parallel), msg_processor_num_(msg_processor_num), listen_addr_(listen_addr), listen_port_(listen_port) {
   stop_ = false;
 }
 
@@ -96,7 +96,7 @@ void EpollTCPServer::CreateThreads() {
     epoll_thread_info_vec_.emplace_back(std::move(info));
   }
 
-  for (int i = 0; i < parallel_num_; ++i) {
+  for (int i = 0; i < msg_processor_num_; ++i) {
     std::thread msg_process_thread = std::thread(&EpollTCPServer::MainMessageProcessor, this);
     msg_processor_vec_.emplace_back(std::move(msg_process_thread));
   }
@@ -181,7 +181,10 @@ void EpollTCPServer::MainWorker(int pair_fd) {
               need_close = true;
               break;
             } else if (n_read > 0) {
-              conn->ExtractMessage();
+              std::vector<MessageInfo*> res = conn->ExtractMessage();
+              for (auto msg : res) {
+                while (!message_queue_->Push(msg)) {}
+              }
             }
           } while (trigger_mode_ == EpollTriggerMode::ET);
         } else if (events[i].events & EPOLLOUT) {
@@ -202,7 +205,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
 }
 
 int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
-  TcpConnection* new_connection = new TcpConnection(client_fd, this);
+  TcpConnection* new_connection = new TcpConnection(client_fd);
   new_connection->Init();
   struct epoll_event new_ev;
   memset(&new_ev, 0, sizeof(new_ev));
@@ -216,15 +219,16 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
 }
 
 void EpollTCPServer::MainMessageProcessor() {
+  LOG_INFO("Start MainMessageProcessor");
   while (!stop_) {
     MessageInfo* msg_info = message_queue_->Pop();
     if (msg_info) {
       //LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_info->message_type, msg_info->message_json.size(), msg_info->message_json.c_str());
       try {
         nlohmann::json j = nlohmann::json::parse(msg_info->message_json);
-        XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
-        std::unique_ptr<BaseHandler> handler = HandlerFactory::GetHandler(msg_info->message_type, req);
-        handler->HandleRequest();
+        //XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
+        //std::unique_ptr<BaseHandler> handler = HandlerFactory::GetHandler(msg_info->message_type, req);
+        //handler->HandleRequest();
       } catch (...) {
         LOG_ERROR("Invalid Message: %s", msg_info->message_json.c_str());
       }

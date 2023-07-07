@@ -5,6 +5,7 @@
 #include <sys/uio.h>
 #include <string.h>
 #include <stdint.h>
+#include <vector>
 #include <map>
 
 #include <functional>
@@ -15,21 +16,18 @@
 #include "epoll_server/epoll_tcp_server.h"
 #include "queue/queue_msg.h"
 
-class EpollTCPServer;
 class MessageInfo;
 class TcpConnection {
 public:
-  explicit TcpConnection(int, EpollTCPServer*);
+  explicit TcpConnection(int);
   ~TcpConnection();
   void Init();
   int Connect();
   void Close();
   int Read();
-  int ExtractMessage();
-  void QueueMessage(MessageInfo*);
+  std::vector<MessageInfo*> ExtractMessage();
   int Write(char*, int);
   int GetSocketFd();
-  EpollTCPServer* server_;
 private:
   VecBuffer read_buffer_;
   VecBuffer write_buffer_;

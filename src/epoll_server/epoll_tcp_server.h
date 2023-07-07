@@ -31,7 +31,7 @@
 
 class EpollTCPServer : public EpollServerBase {
  public:
-  explicit EpollTCPServer(const EpollRunMode&, const EpollTriggerMode&, const int&, const std::string&, const int&);
+  explicit EpollTCPServer(const EpollRunMode&, const EpollTriggerMode&, const int&, const int&, const std::string&, const int&);
   ~EpollTCPServer() {}
   virtual ReturnCode Init() override;
   virtual void Start() override;
@@ -64,6 +64,7 @@ class EpollTCPServer : public EpollServerBase {
   int listen_fd_;
   int main_ep_fd_;
   int parallel_num_;
+  int msg_processor_num_;
   int current_worker_idx_ = 0;
   std::atomic<bool> stop_;
   std::atomic<uint64_t> process_msg_num_{0};

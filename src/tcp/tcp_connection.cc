@@ -1,6 +1,6 @@
 #include "tcp/tcp_connection.h"
 
-TcpConnection::TcpConnection(int sock_fd, EpollTCPServer* server) : server_(server), socket_fd_(sock_fd), latest_message_type_(-1), latest_message_len_(-1), total_handle_msg_(0) {
+TcpConnection::TcpConnection(int sock_fd) : socket_fd_(sock_fd), latest_message_type_(-1), latest_message_len_(-1), total_handle_msg_(0) {
 }
 
 TcpConnection::~TcpConnection() {
@@ -26,7 +26,8 @@ int TcpConnection::Read() {
   return read_buffer_.ReadFromFd(socket_fd_);
 }
 
-int TcpConnection::ExtractMessage() {
+std::vector<MessageInfo*> TcpConnection::ExtractMessage() {
+  std::vector<MessageInfo*> res;
   int total_handle_bytes = 0;
   int unhandle_bytes = read_buffer_.GetUnHandleBytesNum();
   char* read_index = read_buffer_.GetReadIndex();
@@ -70,7 +71,10 @@ int TcpConnection::ExtractMessage() {
     char message[latest_message_len_];
     memcpy(message, read_index, latest_message_len_);
     MessageInfo* p = new MessageInfo(this, latest_message_type_, std::move(std::string(message, latest_message_len_)));
-    QueueMessage(p);
+    res.push_back(p);
+    total_handle_msg_++;
+
+    //update buffer info
     read_index += latest_message_len_;
     total_handle_bytes += latest_message_len_;
     unhandle_bytes -= latest_message_len_;
@@ -78,12 +82,7 @@ int TcpConnection::ExtractMessage() {
     latest_message_len_ = -1;
   }
   read_buffer_.IncrReadIndex(total_handle_bytes);
-  return total_handle_bytes;
-}
-
-void TcpConnection::QueueMessage(MessageInfo* msg) {
-  while (!server_->message_queue_->Push(msg)) {}
-  total_handle_msg_++;
+  return res;
 }
 
 int TcpConnection::Write(char* data, int data_len) {
