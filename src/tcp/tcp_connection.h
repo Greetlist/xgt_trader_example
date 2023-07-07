@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <vector>
 #include <map>
+#include <mutex>
 
 #include <functional>
 
@@ -35,6 +36,8 @@ private:
   int latest_message_type_;
   int latest_message_len_;
   int total_handle_msg_;
+  std::mutex read_lock_;
+  std::mutex write_lock_;
   static constexpr int INT_SIZE = sizeof(int);
 };
 #endif

@@ -14,7 +14,7 @@
 int main(int argc, char** argv) {
   Logger::Init(argv[0], true, "./log");
   std::vector<std::thread> tv;
-  int thread_num = 20;
+  int thread_num = 2;
   int req_num = 20000;
   int loop_count = 20;
 

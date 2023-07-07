@@ -132,15 +132,26 @@ void EpollTCPServer::MainWorker(int pair_fd) {
     return;
   }
 
-  struct epoll_event ev;
-  memset(&ev, 0, sizeof(ev));
-  ev.data.fd = pair_fd;
-  ev.events = EPOLLIN;
+  std::vector<int> basic_fd{pair_fd};
 
-  int ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, pair_fd, &ev);
-  if (ss < 0) {
-    LOG_ERROR("Epoll Add Error");
-    return;
+  //create timer fd to do some interval work
+  TimerFd timer_fd;
+  timer_fd.SetTimeout(0, 100 * 1000 * 1000);
+  //timer_fd.SetTimeout(1, 0);
+  if (timer_fd.GetTimerFd() > 0) {
+    basic_fd.push_back(timer_fd.GetTimerFd());
+  }
+
+  for (auto fd : basic_fd) {
+    struct epoll_event ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.data.fd = fd;
+    ev.events = EPOLLIN;
+    int ss = epoll_ctl(thread_ep, EPOLL_CTL_ADD, fd, &ev);
+    if (ss < 0) {
+      LOG_ERROR("Epoll Add Error");
+      return;
+    }
   }
 
   struct epoll_event events[kEventLen];
@@ -162,6 +173,15 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         if (AcceptClient(thread_ep, client_fd) < 0) {
           LOG_ERROR("Accept Error, error is : %s", strerror(errno));
         }
+      } else if (events[i].data.fd == timer_fd.GetTimerFd()) {
+        uint64_t expire;
+        int s = read(events[i].data.fd, &expire, sizeof(uint64_t));
+        if (s != sizeof(uint64_t)) {
+          LOG_ERROR("Timer fd is Invalid!");
+          epoll_ctl(thread_ep, EPOLL_CTL_DEL, timer_fd.GetTimerFd(), NULL);
+        }
+
+        //loop all tcp_connections to check whether its write buffer still have data not transfer
       } else {
         TcpConnection* conn = static_cast<TcpConnection*>(events[i].data.ptr);
         bool need_close = false;
@@ -176,7 +196,6 @@ void EpollTCPServer::MainWorker(int pair_fd) {
               need_close = true;
               break;
             } else if (n_read < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-              LOG_INFO("[%d] socket EAGAIN", conn->GetSocketFd());
               break;
             } else if (n_read == 0) {
               LOG_INFO("Client: [%d] close connection.", conn->GetSocketFd());
@@ -191,7 +210,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           } while (trigger_mode_ == EpollTriggerMode::ET);
         } else if (events[i].events & EPOLLOUT) {
         } else {
-          LOG_WARN("Unhandle epoll event: ", events[i].events);
+          LOG_WARN("Unhandle epoll event: %d", events[i].events);
         }
 
         if (need_close) {

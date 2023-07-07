@@ -54,17 +54,14 @@ int VecBuffer::WriteToFd(int fd) {
   if (left_data_size == 0) {
     return 0;
   }
-  struct iovec iov;
 
   //try a writev for total data
+  struct iovec iov;
   iov.iov_base = buffer_ + read_index_;
   iov.iov_len = left_data_size;
   int n_write = writev(fd, &iov, 1);
   if (n_write < 0) {
-    if (errno != EAGAIN && errno != EWOULDBLOCK) {
-      return -1;
-    }
-    return 0;
+    return n_write;
   }
   IncrReadIndex(n_write);
   return n_write;

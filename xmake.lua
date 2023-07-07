@@ -6,12 +6,14 @@ target("xgt")
     add_files("src/interface/*.cc")
     add_includedirs("src")
     add_cxflags("-g")
+    set_languages("c++17")
 
 target("logger")
     set_kind("shared")
     add_files("src/logger/*.cc")
     add_includedirs("src")
     add_cxflags("-g")
+    set_languages("c++17")
 
 target("epoll_server")
     set_kind("static")
@@ -19,6 +21,7 @@ target("epoll_server")
     add_includedirs("src")
     add_cxflags("-g")
     add_deps("logger")
+    set_languages("c++17")
 
 target("xgt_server")
     set_kind("binary")
@@ -27,6 +30,7 @@ target("xgt_server")
     add_cxflags("-g")
     add_deps("xgt", "epoll_server", "logger")
     add_ldflags("-lpthread")
+    set_languages("c++17")
 
 target("xgt_trader")
     set_kind("binary")
@@ -35,6 +39,7 @@ target("xgt_trader")
     add_cxflags("-g")
     add_deps("xgt", "epoll_server", "logger")
     add_ldflags("-lpthread")
+    set_languages("c++17")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

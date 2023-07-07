@@ -86,6 +86,8 @@ std::vector<MessageInfo*> TcpConnection::ExtractMessage() {
 }
 
 int TcpConnection::Write(char* data, int data_len) {
+  //because write would in different thread, lock is needed
+  std::scoped_lock l(write_lock_);
   write_buffer_.SaveData(data, data_len);
   write_buffer_.WriteToFd(socket_fd_);
   return 0;
