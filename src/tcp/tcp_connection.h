@@ -26,6 +26,7 @@ public:
   int Connect();
   void Close();
   int Read();
+  void TryFlushWriteBuffer();
   std::vector<MessageInfo*> ExtractMessage();
   int Write(char*, int);
   int GetSocketFd();

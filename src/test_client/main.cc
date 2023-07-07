@@ -14,7 +14,7 @@
 int main(int argc, char** argv) {
   Logger::Init(argv[0], true, "./log");
   std::vector<std::thread> tv;
-  int thread_num = 2;
+  int thread_num = 20;
   int req_num = 20000;
   int loop_count = 20;
 
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
           trader->QueryOrder();
           trader->QueryTrade();
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       }
       trader->Logout();
       delete trader;

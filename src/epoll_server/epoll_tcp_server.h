@@ -17,6 +17,7 @@
 #include <mutex>
 #include <tuple>
 #include <memory>
+#include <unordered_map>
 
 #include "util/fd_util.h"
 #include "util/ipc_unix.h"
@@ -42,7 +43,7 @@ class EpollTCPServer : public EpollServerBase {
   void CreateThreads();
   void CreateProcesses();
   void MainWorker(int);
-  int AcceptClient(int, int);
+  int AcceptClient(int, int, std::unordered_map<TcpConnection*, int>&);
   void MainMessageProcessor();
   void ProduceProcessInfo();
   void StartMainEpoll();

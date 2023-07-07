@@ -133,7 +133,6 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   }
 
   std::vector<int> basic_fd{pair_fd};
-
   //create timer fd to do some interval work
   TimerFd timer_fd;
   timer_fd.SetTimeout(0, 100 * 1000 * 1000);
@@ -141,7 +140,6 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   if (timer_fd.GetTimerFd() > 0) {
     basic_fd.push_back(timer_fd.GetTimerFd());
   }
-
   for (auto fd : basic_fd) {
     struct epoll_event ev;
     memset(&ev, 0, sizeof(ev));
@@ -153,6 +151,10 @@ void EpollTCPServer::MainWorker(int pair_fd) {
       return;
     }
   }
+
+
+  //for all tcp_connection in this thread
+  std::unordered_map<TcpConnection*, int> conn_map;
 
   struct epoll_event events[kEventLen];
   while (!stop_) {
@@ -170,8 +172,8 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           }
         }
         LOG_INFO("Recv New Client: [%d]", client_fd);
-        if (AcceptClient(thread_ep, client_fd) < 0) {
-          LOG_ERROR("Accept Error, error is : %s", strerror(errno));
+        if (AcceptClient(thread_ep, client_fd, conn_map) < 0) {
+          close(client_fd);
         }
       } else if (events[i].data.fd == timer_fd.GetTimerFd()) {
         uint64_t expire;
@@ -182,6 +184,9 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         }
 
         //loop all tcp_connections to check whether its write buffer still have data not transfer
+        for (auto& [conn, _] : conn_map) {
+          conn->TryFlushWriteBuffer();
+        }
       } else {
         TcpConnection* conn = static_cast<TcpConnection*>(events[i].data.ptr);
         bool need_close = false;
@@ -218,6 +223,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
           close(socket_fd);
           epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
           delete conn;
+          conn_map.erase(conn);
         }
       }
     }
@@ -225,7 +231,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   LOG_INFO("Quit Main Epoll Loop");
 }
 
-int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
+int EpollTCPServer::AcceptClient(int thread_ep, int client_fd, std::unordered_map<TcpConnection*, int>& conn_map) {
   TcpConnection* new_connection = new TcpConnection(client_fd);
   new_connection->Init();
   struct epoll_event new_ev;
@@ -236,7 +242,13 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd) {
   if (trigger_mode_ == EpollTriggerMode::ET) {
     new_ev.events |= EPOLLET;
   }
-  return epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev);
+  if (epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev) < 0) {
+    LOG_ERROR("Accept Error, error is : %s", strerror(errno));
+    return -1;
+  }
+
+  conn_map[new_connection] = 1;
+  return 0;
 }
 
 void EpollTCPServer::MainMessageProcessor() {
