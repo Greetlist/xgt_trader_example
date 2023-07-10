@@ -152,7 +152,6 @@ void EpollTCPServer::MainWorker(int pair_fd) {
     }
   }
 
-
   //for all tcp_connection in this thread
   std::unordered_map<TcpConnection*, int> conn_map;
 
@@ -258,9 +257,9 @@ void EpollTCPServer::MainMessageProcessor() {
       //LOG_INFO("message_type is: %d, message_len: %d, message: %s", msg_info->message_type, msg_info->message_json.size(), msg_info->message_json.c_str());
       try {
         nlohmann::json j = nlohmann::json::parse(msg_info->message_json);
-        //XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
-        //std::unique_ptr<BaseHandler> handler = HandlerFactory::GetHandler(msg_info->message_type, req);
-        //handler->HandleRequest();
+        XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
+        std::unique_ptr<BaseHandler> handler = HandlerFactory::GetHandler(msg_info->message_type, req);
+        handler->HandleRequest();
       } catch (...) {
         LOG_ERROR("Invalid Message: %s", msg_info->message_json.c_str());
       }
