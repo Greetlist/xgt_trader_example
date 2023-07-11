@@ -133,13 +133,29 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   }
 
   std::vector<int> basic_fd{pair_fd};
-  //create timer fd to do some interval work
-  TimerFd timer_fd;
-  timer_fd.SetTimeout(0, 100 * 1000 * 1000);
-  //timer_fd.SetTimeout(1, 0);
-  if (timer_fd.GetTimerFd() > 0) {
-    basic_fd.push_back(timer_fd.GetTimerFd());
+
+  //create flush_timer fd to flush socket writer buffer
+  TimerFd flush_fd;
+  //flush_fd.SetTimeout(0, 100 * 1000 * 1000);
+  flush_fd.SetTimeout(2, 0);
+  if (flush_fd.GetTimerFd() > 0) {
+    LOG_INFO("flush: %d", flush_fd.GetTimerFd());
+    basic_fd.push_back(flush_fd.GetTimerFd());
+  } else {
+    LOG_ERROR("Create flush_fd Error");
   }
+
+  //create check_connection timer to check whether connection is still alive
+  TimerFd check_alive_fd;
+  //check_alive_fd.SetTimeout(0, 100 * 1000 * 1000);
+  check_alive_fd.SetTimeout(2, 0);
+  if (check_alive_fd.GetTimerFd() > 0) {
+    LOG_INFO("check_alive: %d", check_alive_fd.GetTimerFd());
+    basic_fd.push_back(check_alive_fd.GetTimerFd());
+  } else {
+    LOG_ERROR("Create check_alive_fd Error");
+  }
+
   for (auto fd : basic_fd) {
     struct epoll_event ev;
     memset(&ev, 0, sizeof(ev));
@@ -159,6 +175,8 @@ void EpollTCPServer::MainWorker(int pair_fd) {
   while (!stop_) {
     int num = epoll_wait(thread_ep, events, kEventLen, 1000);
     for (int i = 0; i < num; ++i) {
+      bool need_close = false;
+      TcpConnection* need_close_connection = nullptr;
       if (events[i].data.fd == pair_fd) {
         int client_fd;
         if (mode_ == EpollRunMode::UseProcess) {
@@ -174,12 +192,23 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         if (AcceptClient(thread_ep, client_fd, conn_map) < 0) {
           close(client_fd);
         }
-      } else if (events[i].data.fd == timer_fd.GetTimerFd()) {
+      } else if (events[i].data.fd == check_alive_fd.GetTimerFd()) {
+        std::time_t ts = std::time(nullptr);
+        LOG_INFO("Start to check connection alive");
+        for (auto& [conn, _] : conn_map) {
+          if (conn->IsExpire()) {
+            LOG_WARN("Connection [%d] not receive heartbeat over 5Min, Close Connection", conn->GetSocketFd());
+            need_close = true;
+            need_close_connection = conn;
+          }
+        }
+      } else if (events[i].data.fd == flush_fd.GetTimerFd()) {
         uint64_t expire;
+        //LOG_INFO("Start to flush");
         int s = read(events[i].data.fd, &expire, sizeof(uint64_t));
         if (s != sizeof(uint64_t)) {
           LOG_ERROR("Timer fd is Invalid!");
-          epoll_ctl(thread_ep, EPOLL_CTL_DEL, timer_fd.GetTimerFd(), NULL);
+          epoll_ctl(thread_ep, EPOLL_CTL_DEL, flush_fd.GetTimerFd(), NULL);
         }
 
         //loop all tcp_connections to check whether its write buffer still have data not transfer
@@ -188,22 +217,24 @@ void EpollTCPServer::MainWorker(int pair_fd) {
         }
       } else {
         TcpConnection* conn = static_cast<TcpConnection*>(events[i].data.ptr);
-        bool need_close = false;
         if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
           LOG_ERROR("Read From Client Error");
           need_close = true;
+          need_close_connection = conn;
         } else if (events[i].events & EPOLLIN) {
           do {
             int n_read = conn->Read();
             if (n_read < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
               LOG_ERROR("Read From Client Error");
               need_close = true;
+              need_close_connection = conn;
               break;
             } else if (n_read < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
               break;
             } else if (n_read == 0) {
               LOG_INFO("Client: [%d] close connection.", conn->GetSocketFd());
               need_close = true;
+              need_close_connection = conn;
               break;
             } else if (n_read > 0) {
               std::vector<MessageInfo*> res = conn->ExtractMessage();
@@ -212,18 +243,16 @@ void EpollTCPServer::MainWorker(int pair_fd) {
               }
             }
           } while (trigger_mode_ == EpollTriggerMode::ET);
-        } else if (events[i].events & EPOLLOUT) {
         } else {
           LOG_WARN("Unhandle epoll event: %d", events[i].events);
         }
-
-        if (need_close) {
-          int socket_fd = conn->GetSocketFd();
-          close(socket_fd);
-          epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
-          delete conn;
-          conn_map.erase(conn);
-        }
+      }
+      if (need_close) {
+        int socket_fd = need_close_connection->GetSocketFd();
+        close(socket_fd);
+        epoll_ctl(thread_ep, EPOLL_CTL_DEL, socket_fd, NULL);
+        delete need_close_connection;
+        conn_map.erase(need_close_connection);
       }
     }
   }
@@ -237,7 +266,7 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd, std::unordered_ma
   memset(&new_ev, 0, sizeof(new_ev));
   new_ev.data.ptr = new_connection;
 
-  new_ev.events = EPOLLIN | EPOLLOUT;
+  new_ev.events = EPOLLIN;
   if (trigger_mode_ == EpollTriggerMode::ET) {
     new_ev.events |= EPOLLET;
   }
@@ -246,7 +275,8 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd, std::unordered_ma
     return -1;
   }
 
-  conn_map[new_connection] = 1;
+  std::time_t ts = std::time(nullptr);
+  conn_map[new_connection] = ts;
   return 0;
 }
 
@@ -260,6 +290,9 @@ void EpollTCPServer::MainMessageProcessor() {
         XGT::XGTRequest req = MessageCoder::JsonToRequest(msg_info->message_type, j);
         std::unique_ptr<BaseHandler> handler = HandlerFactory::GetHandler(msg_info->message_type, req);
         handler->HandleRequest();
+        if (msg_info->message_type == XGT::RequestType::HeartbeatRequest) {
+          msg_info->conn->SetLastActiveTime(std::time(nullptr));
+        }
       } catch (...) {
         LOG_ERROR("Invalid Message: %s", msg_info->message_json.c_str());
       }

@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <mutex>
+#include <ctime>
 
 #include <functional>
 
@@ -30,6 +31,8 @@ public:
   std::vector<MessageInfo*> ExtractMessage();
   int Write(char*, int);
   int GetSocketFd();
+  void SetLastActiveTime(int);
+  bool IsExpire();
 private:
   VecBuffer read_buffer_;
   VecBuffer write_buffer_;
@@ -37,8 +40,10 @@ private:
   int latest_message_type_;
   int latest_message_len_;
   int total_handle_msg_;
+  std::atomic<int> last_active_time_;
   std::mutex read_lock_;
   std::mutex write_lock_;
   static constexpr int INT_SIZE = sizeof(int);
+  static constexpr int ActiveTimeout = 60;
 };
 #endif

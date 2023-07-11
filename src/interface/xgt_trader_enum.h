@@ -13,6 +13,7 @@ enum RequestType {
   QueryPositionRequest,
   QueryOrderRequest,
   QueryTradeRequest,
+  HeartbeatRequest,
   UnknownRequest,
 };
 

@@ -13,5 +13,4 @@ public:
   std::string message_json;
 };
 
-
 #endif

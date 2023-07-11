@@ -102,3 +102,12 @@ int TcpConnection::Write(char* data, int data_len) {
 int TcpConnection::GetSocketFd() {
   return socket_fd_;
 }
+
+void TcpConnection::SetLastActiveTime(int t) {
+  last_active_time_.store(t);
+}
+
+bool TcpConnection::IsExpire() {
+  std::time_t ts = std::time(nullptr);
+  return last_active_time_.load() - ts > ActiveTimeout;
+}
