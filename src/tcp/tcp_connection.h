@@ -40,10 +40,10 @@ private:
   int latest_message_type_;
   int latest_message_len_;
   int total_handle_msg_;
-  std::atomic<int> last_active_time_;
+  std::atomic<int> last_active_time_{0};
   std::mutex read_lock_;
   std::mutex write_lock_;
   static constexpr int INT_SIZE = sizeof(int);
-  static constexpr int ActiveTimeout = 60;
+  static constexpr int ActiveTimeout = 30;
 };
 #endif

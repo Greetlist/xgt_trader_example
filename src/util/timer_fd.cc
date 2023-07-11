@@ -15,8 +15,8 @@ bool TimerFd::SetTimeout(int second, uint64_t nanosecond) {
   struct itimerspec new_value;
   new_value.it_value.tv_sec = now.tv_sec + second;
   new_value.it_value.tv_nsec = now.tv_nsec + nanosecond;
-  new_value.it_interval.tv_sec = 2;
-  new_value.it_interval.tv_nsec = 0;
+  new_value.it_interval.tv_sec = second;
+  new_value.it_interval.tv_nsec = nanosecond;
   if (timerfd_settime(timer_fd_, TFD_TIMER_ABSTIME, &new_value, NULL) == -1) {
     perror("Set Time Error");
     std::cout << second << ", " << nanosecond << ";" << std::endl;

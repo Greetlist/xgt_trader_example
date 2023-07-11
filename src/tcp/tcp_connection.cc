@@ -20,6 +20,7 @@ TcpConnection::~TcpConnection() {
 void TcpConnection::Init() {
   read_buffer_.Init();
   write_buffer_.Init();
+  last_active_time_.store(std::time(nullptr));
 }
 
 int TcpConnection::Read() {
@@ -109,5 +110,5 @@ void TcpConnection::SetLastActiveTime(int t) {
 
 bool TcpConnection::IsExpire() {
   std::time_t ts = std::time(nullptr);
-  return last_active_time_.load() - ts > ActiveTimeout;
+  return ts - last_active_time_.load() > ActiveTimeout;
 }
