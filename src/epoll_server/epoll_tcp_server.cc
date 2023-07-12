@@ -145,7 +145,7 @@ void EpollTCPServer::MainWorker(int pair_fd) {
 
   //create check_connection timer to check whether connection is still alive
   TimerFd check_alive_fd;
-  check_alive_fd.SetTimeout(15, 0);
+  check_alive_fd.SetTimeout(30, 0);
   if (check_alive_fd.GetTimerFd() > 0) {
     basic_fd.push_back(check_alive_fd.GetTimerFd());
   } else {
@@ -267,6 +267,7 @@ int EpollTCPServer::AcceptClient(int thread_ep, int client_fd, std::unordered_ma
   }
   if (epoll_ctl(thread_ep, EPOLL_CTL_ADD, client_fd, &new_ev) < 0) {
     LOG_ERROR("Accept Error, error is : %s", strerror(errno));
+    delete new_connection;
     return -1;
   }
 

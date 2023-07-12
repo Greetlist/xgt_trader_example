@@ -44,6 +44,6 @@ private:
   std::mutex read_lock_;
   std::mutex write_lock_;
   static constexpr int INT_SIZE = sizeof(int);
-  static constexpr int ActiveTimeout = 30;
+  static constexpr int ActiveTimeout = 300;
 };
 #endif

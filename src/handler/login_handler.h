@@ -8,6 +8,7 @@ public:
   explicit LoginHandler(const XGT::XGTRequest& req) : BaseHandler(req) {}
   ~LoginHandler() = default;
   virtual void HandleRequest() override;
+  bool PasswordValid();
 };
 
 #endif
